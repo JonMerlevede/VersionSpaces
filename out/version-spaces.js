@@ -433,6 +433,25 @@ List.prototype = {
 	}
 	,__class__: List
 }
+var StringBuf = function() {
+	this.b = "";
+};
+StringBuf.__name__ = true;
+StringBuf.prototype = {
+	toString: function() {
+		return this.b;
+	}
+	,addSub: function(s,pos,len) {
+		this.b += HxOverrides.substr(s,pos,len);
+	}
+	,addChar: function(c) {
+		this.b += String.fromCharCode(c);
+	}
+	,add: function(x) {
+		this.b += Std.string(x);
+	}
+	,__class__: StringBuf
+}
 var Logger = function() { }
 Logger.__name__ = true;
 Logger.write = function(m) {
@@ -447,9 +466,12 @@ Logger.warn = function(m) {
 	Logger.log(m);
 }
 Logger.log = function(message) {
-	js.Lib.document.getElementById("output").innerHTML = js.Lib.document.getElementById("output").innerHTML + "<br />" + message;
+	Logger.sb.b += Std.string(message);
+	Logger.sb.b += Std.string("<br />");
+	js.Lib.document.getElementById("output").innerHTML = Logger.sb.b;
 }
 Logger.clear = function() {
+	Logger.sb = new StringBuf();
 	js.Lib.document.getElementById("output").innerHTML = "";
 }
 var Main = function() { }
@@ -565,25 +587,6 @@ Std.parseFloat = function(x) {
 }
 Std.random = function(x) {
 	return Math.floor(Math.random() * x);
-}
-var StringBuf = function() {
-	this.b = "";
-};
-StringBuf.__name__ = true;
-StringBuf.prototype = {
-	toString: function() {
-		return this.b;
-	}
-	,addSub: function(s,pos,len) {
-		this.b += HxOverrides.substr(s,pos,len);
-	}
-	,addChar: function(c) {
-		this.b += String.fromCharCode(c);
-	}
-	,add: function(x) {
-		this.b += Std.string(x);
-	}
-	,__class__: StringBuf
 }
 var StringTools = function() { }
 StringTools.__name__ = true;
@@ -974,6 +977,7 @@ if(typeof window != "undefined") {
 	};
 }
 Logger.OUTPUT_ID = "output";
+Logger.sb = new StringBuf();
 Processor.STRUCTURE_ID = "structure";
 Processor.SAMPLE_ID = "sample";
 Main.main();
