@@ -1,0 +1,61 @@
+<html>
+<head><title>Haxe JS</title></head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" language=
+"JavaScript"></script>
+<script src="testhaxe.js"></script>
+<style>
+	table {
+		
+	}
+	td:first-child {
+		width:180px;
+	}
+	textarea {
+		width: 200px;
+		height: 100px;
+	}
+	textarea#structure {
+		height: 200px;
+	}
+</style>
+<body>
+<h1>Version Spaces Processor</h1>
+<p>
+<form name="myForm">
+<table>
+<tr>
+	<td>Structure definition</td>
+	<td>
+		<textarea id="structure">
+empty -> blue
+empty -> green
+empty -> red
+empty -> orange
+empty -> purple
+blue -> mono
+green -> mono
+red -> mono
+orange -> poly
+purple -> poly
+mono -> all
+poly -> all
+		</textarea>
+	</td>
+</tr><tr>
+	<td>Sample definition</td>
+	<td>
+		<textarea id="sample">
++red
+-purple
++blue
+		</textarea>
+	</td>
+</tr><tr>
+	<td colspan="2" align="center"><input type="button" value="Submit" onclick="Processor.process();" /></td>
+</tr>
+</table>
+<form>
+</p>
+<div id="output"></div>
+</body>
+</html>
