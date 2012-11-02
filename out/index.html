@@ -6,6 +6,7 @@
 <style>
 	body {
 		font-family:"DejaVu Sans",Verdana,sans-serif;
+		max-width:60em;
 	}
 	td:first-child {
 		width:180px;
@@ -153,6 +154,25 @@
 <body onload="extended();">
 <h1>Version Spaces Processor</h1>
 <p>
+This is an implementation of the
+<a href="http://en.wikipedia.org/wiki/Version_space">Version Space</a>
+algorithm in Javascript made using <a href="http://haxe.org/">Haxe</a>
+for the <a href="http://onderwijsaanbod.kuleuven.be/syllabi/e/H04L5AE.htm">Comparative Programming Languages</a>
+course at the <a href="http://www.kuleuven.be/kuleuven/">University of Leuven</a>.
+An explanation of this algorithm in dutch can be found <a href="http://people.cs.kuleuven.be/~danny.deschreye/AI_Leuven/">here</a>.
+</p>
+<p>
+Three example structure and sample sets are defined. They can be loaded by
+clicking any of the three buttons below (Regular, Extended and Extended - difficult).
+Pressing the Derive button starts the derivation.
+You can insert your own structures and sample sets by modifying
+the values in the text areas.
+</p><p>
+The three examples were taken from
+<a href="http://dtai.cs.kuleuven.be/education/ai/">here</a>. An explanation
+on how to derive results for them yourself can also be found there.
+</p>
+<p>
 <form name="myForm">
 <input type="button" value="Regular" onclick="regular();" />
 <input type="button" value="Extended" onclick="extended();" />
@@ -169,7 +189,7 @@
 		<textarea id="sample"></textarea>
 	</td>
 </tr><tr>
-	<td colspan="2" align="center"><input type="button" value="Submit" onclick="Processor.process();" /></td>
+	<td colspan="2" align="center"><input type="button" value="Derive" onclick="Processor.process();" /></td>
 </tr>
 </table>
 <form>
