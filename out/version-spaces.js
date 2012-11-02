@@ -699,7 +699,7 @@ VersionSpace.searchExtremes = function(concepts) {
 }
 VersionSpace.prototype = {
 	print: function(printf) {
-		printf("The Version Space now contains: <br />   G: " + this.ms(this.G) + "<br />   S: " + this.ms(this.S) + "<br />");
+		printf("The Version Space is now defined by: <div class=\"vs\">G: " + this.ms(this.G) + "<br />   S: " + this.ms(this.S) + "</div>");
 	}
 	,ms: function(hc) {
 		var rv = "{";
