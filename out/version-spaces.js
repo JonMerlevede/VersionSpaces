@@ -1,10 +1,23 @@
 var $estr = function() { return js.Boot.__string_rec(this,''); };
+var Statement = function() { }
+Statement.__name__ = true;
+Statement.prototype = {
+	__class__: Statement
+}
 var Concept = function(name) {
 	this.name = name;
 	this.children = new List();
 	this.parents = new List();
 };
 Concept.__name__ = true;
+Concept.__interfaces__ = [Statement];
+Concept.searchExtremes = function(concept) {
+	var all = concept;
+	var empty = concept;
+	while(all.parents.length != 0) all = all.parents.first();
+	while(empty.children.length != 0) empty = empty.children.first();
+	return { all : all, empty : empty};
+}
 Concept.prototype = {
 	contains: function(concept) {
 		if(concept == this) return true;
@@ -21,35 +34,19 @@ Concept.prototype = {
 			tmp.add(this);
 			return tmp;
 		}
-		var rv = new Hash();
+		var specialisations = new List();
 		var $it0 = this.children.iterator();
 		while( $it0.hasNext() ) {
 			var child = $it0.next();
-			var specialisations = child.specialise(concept);
-			var $it1 = specialisations.iterator();
+			var ss = child.specialise(concept);
+			var $it1 = ss.iterator();
 			while( $it1.hasNext() ) {
-				var v = $it1.next();
-				rv.set(v.name,v);
+				var s = $it1.next();
+				specialisations.add(s);
 			}
 		}
-		var toRemove = new List();
-		var $it2 = rv.keys();
-		while( $it2.hasNext() ) {
-			var conceptKey = $it2.next();
-			var concept1 = rv.get(conceptKey);
-			var $it3 = rv.iterator();
-			while( $it3.hasNext() ) {
-				var concept2 = $it3.next();
-				if(concept1 == concept2) continue;
-				if(concept2.contains(concept1)) toRemove.add(conceptKey);
-			}
-		}
-		var $it4 = toRemove.iterator();
-		while( $it4.hasNext() ) {
-			var val = $it4.next();
-			rv.remove(val);
-		}
-		return Helper.hashToList(rv);
+		specialisations = StatementHelper.sanitiseSpecialisations(specialisations);
+		return specialisations;
 	}
 	,generalise: function(concept) {
 		if(this.contains(concept)) {
@@ -57,35 +54,19 @@ Concept.prototype = {
 			tmp.add(this);
 			return tmp;
 		}
-		var rv = new Hash();
+		var generalisations = new List();
 		var $it0 = this.parents.iterator();
 		while( $it0.hasNext() ) {
 			var parent = $it0.next();
-			var generalisations = parent.generalise(concept);
-			var $it1 = generalisations.iterator();
+			var gs = parent.generalise(concept);
+			var $it1 = gs.iterator();
 			while( $it1.hasNext() ) {
-				var v = $it1.next();
-				rv.set(v.name,v);
+				var g = $it1.next();
+				generalisations.add(g);
 			}
 		}
-		var toRemove = new List();
-		var $it2 = rv.keys();
-		while( $it2.hasNext() ) {
-			var conceptKey = $it2.next();
-			var concept1 = rv.get(conceptKey);
-			var $it3 = rv.iterator();
-			while( $it3.hasNext() ) {
-				var concept2 = $it3.next();
-				if(concept1 == concept2) continue;
-				if(concept1.contains(concept2)) toRemove.add(conceptKey);
-			}
-		}
-		var $it4 = toRemove.iterator();
-		while( $it4.hasNext() ) {
-			var val = $it4.next();
-			rv.remove(val);
-		}
-		return Helper.hashToList(rv);
+		generalisations = StatementHelper.sanitiseGeneralisations(generalisations);
+		return generalisations;
 	}
 	,addParents: function(parents) {
 		var $it0 = $iterator(parents)();
@@ -112,11 +93,20 @@ Concept.prototype = {
 	,toString: function() {
 		return this.name;
 	}
+	,pure: function() {
+		return this;
+	}
 	,getNumberOfChildren: function() {
 		return this.children.length;
 	}
 	,getNumberOfParents: function() {
 		return this.parents.length;
+	}
+	,isEmpty: function() {
+		return this.children.length == 0;
+	}
+	,isAll: function() {
+		return this.parents.length == 0;
 	}
 	,__class__: Concept
 }
@@ -157,7 +147,10 @@ DotConceptParser.processConcepts = function(string) {
 	}
 	return concepts;
 }
-DotConceptParser.processInput = function(string,concepts) {
+DotConceptParser.determineMode = function(samples) {
+	if(Helper.containsChar(samples,"[")) return Mode.EXTENDED; else return Mode.REGULAR;
+}
+DotConceptParser.processInput = function(string,f) {
 	var lines = string.split("\n");
 	var examples = new List();
 	var i = 0;
@@ -168,16 +161,177 @@ DotConceptParser.processInput = function(string,concepts) {
 		i++;
 		line = StringTools.trim(line);
 		var type = HxOverrides.substr(line,0,1);
-		var conceptKey = StringTools.trim(HxOverrides.substr(line,1,null));
+		var statementString = StringTools.trim(HxOverrides.substr(line,1,null));
 		if(type == "-") {
-			var tmp = { type : Type.NegativeSample, concept : concepts.get(conceptKey)};
+			var tmp = { type : Type.NegativeSample, concept : f(statementString)};
 			examples.add(tmp);
 		} else if(type == "+") {
-			var tmp = { type : Type.PositiveSample, concept : concepts.get(conceptKey)};
+			var tmp = { type : Type.PositiveSample, concept : f(statementString)};
 			examples.add(tmp);
 		} else if(!Helper.isEmptyLine(line)) Logger.warn("Ignoring sample " + i + " (" + line + ")");
 	}
 	return examples;
+}
+DotConceptParser.processInputRegular = function(string,allConcepts) {
+	return DotConceptParser.processInput(string,function(conceptKey) {
+		return allConcepts.get(conceptKey);
+	});
+}
+DotConceptParser.processInputExtended = function(string,allConcepts) {
+	return DotConceptParser.processInput(string,function(extendedConceptString) {
+		extendedConceptString = HxOverrides.substr(extendedConceptString,1,extendedConceptString.length - 2);
+		var conceptKeys = extendedConceptString.split(".");
+		var concepts = new List();
+		var _g = 0;
+		while(_g < conceptKeys.length) {
+			var key = conceptKeys[_g];
+			++_g;
+			concepts.add(allConcepts.get(key));
+		}
+		var ec = new ExtendedConcept(concepts);
+		return ec;
+	});
+}
+var ExtendedConcept = function(concepts) {
+	this.concepts = new IntHash();
+	var i = 0;
+	var $it0 = $iterator(concepts)();
+	while( $it0.hasNext() ) {
+		var concept = $it0.next();
+		this.concepts.set(i,{ position : i, concept : concept});
+		i++;
+	}
+};
+ExtendedConcept.__name__ = true;
+ExtendedConcept.__interfaces__ = [Statement];
+ExtendedConcept.moo = function() {
+}
+ExtendedConcept.searchExtremes = function(extendedConcept) {
+	var all = ExtendedConcept.cloneStm(extendedConcept);
+	var empty = ExtendedConcept.cloneStm(extendedConcept);
+	var $it0 = extendedConcept.concepts.iterator();
+	while( $it0.hasNext() ) {
+		var pConcept = $it0.next();
+		var extremes = Concept.searchExtremes(pConcept.concept);
+		all.concepts.set(pConcept.position,{ position : pConcept.position, concept : extremes.all});
+		empty.concepts.set(pConcept.position,{ position : pConcept.position, concept : extremes.empty});
+	}
+	return { all : all, empty : empty};
+}
+ExtendedConcept.forEachConcept = function(stm1,stm2,f) {
+	var $it0 = stm1.concepts.iterator();
+	while( $it0.hasNext() ) {
+		var pConcept = $it0.next();
+		f(pConcept,stm2.concepts.get(pConcept.position));
+	}
+}
+ExtendedConcept.cloneStm = function(stm) {
+	var t = new ExtendedConcept(new List());
+	var $it0 = stm.concepts.iterator();
+	while( $it0.hasNext() ) {
+		var pConcept = $it0.next();
+		t.concepts.set(pConcept.position,pConcept);
+	}
+	return t;
+}
+ExtendedConcept.prototype = {
+	toString: function() {
+		var r = "[";
+		var it = this.concepts.iterator();
+		while(it.hasNext()) {
+			r += Std.string(it.next().concept);
+			if(it.hasNext()) r += ".";
+		}
+		r += "]";
+		return r;
+	}
+	,specialise: function(stm) {
+		var _g = this;
+		var specialisedExtendedConcepts = new List();
+		ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
+			var basis = _g.clone();
+			basis.concepts.remove(cThis.position);
+			var $it0 = cThis.concept.specialise(cStm.concept).iterator();
+			while( $it0.hasNext() ) {
+				var specialisedConcept = $it0.next();
+				var clone = ExtendedConcept.cloneStm(basis);
+				clone.concepts.set(cThis.position,{ position : cThis.position, concept : specialisedConcept});
+				specialisedExtendedConcepts.add(clone);
+			}
+		});
+		return StatementHelper.sanitiseSpecialisations(specialisedExtendedConcepts);
+	}
+	,generalise: function(stm) {
+		var generalisedExtendedConcepts = new List();
+		ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
+			var generalisedConcepts = cThis.concept.generalise(cStm.concept);
+			if(generalisedExtendedConcepts.length == 0) {
+				var $it0 = generalisedConcepts.iterator();
+				while( $it0.hasNext() ) {
+					var gc = $it0.next();
+					var t = new ExtendedConcept(new List());
+					t.concepts.set(cThis.position,{ position : cThis.position, concept : gc});
+					generalisedExtendedConcepts.add(t);
+				}
+			} else {
+				var toAdd = new List();
+				var $it1 = generalisedExtendedConcepts.iterator();
+				while( $it1.hasNext() ) {
+					var g = $it1.next();
+					var clone = ExtendedConcept.cloneStm(g);
+					var iter = generalisedConcepts.iterator();
+					var concept = iter.next();
+					g.concepts.set(cThis.position,{ position : cThis.position, concept : concept});
+					while(iter.hasNext()) {
+						var tmp = ExtendedConcept.cloneStm(clone);
+						concept = iter.next();
+						tmp.concepts.set(cThis.position,{ position : cThis.position, concept : concept});
+						toAdd.add(tmp);
+					}
+				}
+				var $it2 = toAdd.iterator();
+				while( $it2.hasNext() ) {
+					var add = $it2.next();
+					generalisedExtendedConcepts.add(add);
+				}
+			}
+		});
+		return StatementHelper.sanitiseGeneralisations(generalisedExtendedConcepts);
+	}
+	,clone: function() {
+		return ExtendedConcept.cloneStm(this);
+	}
+	,pure: function() {
+		return this;
+	}
+	,contains: function(stm) {
+		var returnValue = true;
+		ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
+			if(returnValue) {
+				if(!cThis.concept.contains(cStm.concept)) returnValue = false;
+			}
+		});
+		return returnValue;
+	}
+	,isEmpty: function() {
+		var isEmpty = false;
+		var $it0 = this.concepts.iterator();
+		while( $it0.hasNext() ) {
+			var pConcept = $it0.next();
+			isEmpty = isEmpty || pConcept.concept.isEmpty();
+		}
+		return isEmpty;
+	}
+	,isAll: function() {
+		var isNotAll = true;
+		var $it0 = this.concepts.iterator();
+		while( $it0.hasNext() ) {
+			var pConcept = $it0.next();
+			isNotAll = isNotAll && !pConcept.concept.isAll();
+		}
+		return !isNotAll;
+	}
+	,__class__: ExtendedConcept
 }
 var Hash = function() {
 	this.h = { };
@@ -241,8 +395,35 @@ Helper.hashToList = function(hash) {
 	}
 	return list;
 }
+Helper.cloneIterable = function(list) {
+	var newList = new List();
+	var $it0 = $iterator(list)();
+	while( $it0.hasNext() ) {
+		var val = $it0.next();
+		newList.add(val);
+	}
+	return newList;
+}
+Helper.cloneHash = function(hash) {
+	var newHash = new Hash();
+	var $it0 = hash.keys();
+	while( $it0.hasNext() ) {
+		var key = $it0.next();
+		newHash.set(key,hash.get(key));
+	}
+	return newHash;
+}
 Helper.isEmptyLine = function(str) {
 	return StringTools.trim(str).length == 0;
+}
+Helper.containsChar = function(str,$char) {
+	if($char.length != 1) throw "Only works for characters";
+	var i = 0;
+	while(i < str.length) {
+		if(str.charAt(i) == $char) return true;
+		i++;
+	}
+	return false;
 }
 var HxOverrides = function() { }
 HxOverrides.__name__ = true;
@@ -308,6 +489,56 @@ HxOverrides.iter = function(a) {
 	}, next : function() {
 		return this.arr[this.cur++];
 	}};
+}
+var IntHash = function() {
+	this.h = { };
+};
+IntHash.__name__ = true;
+IntHash.prototype = {
+	toString: function() {
+		var s = new StringBuf();
+		s.b += Std.string("{");
+		var it = this.keys();
+		while( it.hasNext() ) {
+			var i = it.next();
+			s.b += Std.string(i);
+			s.b += Std.string(" => ");
+			s.b += Std.string(Std.string(this.get(i)));
+			if(it.hasNext()) s.b += Std.string(", ");
+		}
+		s.b += Std.string("}");
+		return s.b;
+	}
+	,iterator: function() {
+		return { ref : this.h, it : this.keys(), hasNext : function() {
+			return this.it.hasNext();
+		}, next : function() {
+			var i = this.it.next();
+			return this.ref[i];
+		}};
+	}
+	,keys: function() {
+		var a = [];
+		for( var key in this.h ) {
+		if(this.h.hasOwnProperty(key)) a.push(key | 0);
+		}
+		return HxOverrides.iter(a);
+	}
+	,remove: function(key) {
+		if(!this.h.hasOwnProperty(key)) return false;
+		delete(this.h[key]);
+		return true;
+	}
+	,exists: function(key) {
+		return this.h.hasOwnProperty(key);
+	}
+	,get: function(key) {
+		return this.h[key];
+	}
+	,set: function(key,value) {
+		this.h[key] = value;
+	}
+	,__class__: IntHash
 }
 var IntIter = function(min,max) {
 	this.min = min;
@@ -459,11 +690,17 @@ Logger.write = function(m) {
 }
 Logger.debug = function(m) {
 }
+Logger.debugInline = function(m) {
+}
 Logger.error = function(m) {
 	Logger.log(m);
 }
 Logger.warn = function(m) {
 	Logger.log(m);
+}
+Logger.logInline = function(message) {
+	Logger.sb.b += Std.string(message);
+	js.Lib.document.getElementById("output").innerHTML = Logger.sb.b;
 }
 Logger.log = function(message) {
 	Logger.sb.b += Std.string(message);
@@ -481,9 +718,26 @@ Main.log = function(message) {
 }
 Main.main = function() {
 	Processor.moo();
+	ExtendedConcept.moo();
 }
 Main.prototype = {
-	dummyStructure: function() {
+	dummyStructure2: function() {
+		var emptyTijd = new Concept("emptyTijd");
+		var voormiddag = new Concept("voormiddag");
+		var namiddag = new Concept("namiddag");
+		var avond = new Concept("avond");
+		var nacht = new Concept("nacht");
+		var empty = new Concept("empty");
+		var blue = new Concept("blue");
+		var green = new Concept("green");
+		var red = new Concept("red");
+		var orange = new Concept("orange");
+		var purple = new Concept("purple");
+		var mono = new Concept("mono");
+		var poly = new Concept("poly");
+		var all = new Concept("all");
+	}
+	,dummyStructure: function() {
 		Logger.log("Initializing");
 		var empty = new Concept("empty");
 		var blue = new Concept("blue");
@@ -515,9 +769,16 @@ Main.prototype = {
 	}
 	,__class__: Main
 }
+var Mode = { __ename__ : true, __constructs__ : ["REGULAR","EXTENDED"] }
+Mode.REGULAR = ["REGULAR",0];
+Mode.REGULAR.toString = $estr;
+Mode.REGULAR.__enum__ = Mode;
+Mode.EXTENDED = ["EXTENDED",1];
+Mode.EXTENDED.toString = $estr;
+Mode.EXTENDED.__enum__ = Mode;
 var Processor = function() {
 	try {
-		Processor.processFormInputs();
+		this.processFormInputs();
 	} catch( msg ) {
 		if( js.Boot.__instanceof(msg,String) ) {
 			Logger.error(msg);
@@ -525,38 +786,75 @@ var Processor = function() {
 	}
 };
 Processor.__name__ = true;
-Processor.processFormInputs = function() {
-	var structureInput = js.Lib.document.getElementById("structure").value;
-	var sampleInput = js.Lib.document.getElementById("sample").value;
-	var concepts = DotConceptParser.processConcepts(structureInput);
-	var extremes = VersionSpace.searchExtremes(concepts);
-	var vs = new VersionSpace(extremes.all,extremes.empty);
-	vs.print(Logger.log);
-	var $it0 = $iterator(DotConceptParser.processInput(sampleInput,concepts))();
-	while( $it0.hasNext() ) {
-		var sample = $it0.next();
-		switch( (sample.type)[1] ) {
-		case 1:
-			Logger.write("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
-			vs.substract(sample.concept);
-			vs.print(Logger.log);
-			break;
-		case 0:
-			Logger.write("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
-			vs.add(sample.concept);
-			vs.print(Logger.log);
-			break;
-		}
-	}
-}
 Processor.moo = function() {
 }
 Processor.process = function() {
 	Logger.clear();
-	Processor.processFormInputs();
+	new Processor();
 }
 Processor.prototype = {
-	__class__: Processor
+	processExtendedConcepts: function() {
+		var extendedSamples = DotConceptParser.processInputExtended(this.sampleInput,this.concepts);
+		var firstSample = $iterator(extendedSamples)().next().concept;
+		var extremes = ExtendedConcept.searchExtremes(firstSample);
+		var vs = new VersionSpace(extremes.all,extremes.empty);
+		vs.print(Logger.log);
+		var $it0 = $iterator(extendedSamples)();
+		while( $it0.hasNext() ) {
+			var sample = $it0.next();
+			switch( (sample.type)[1] ) {
+			case 1:
+				Logger.write("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				vs.substract(sample.concept);
+				vs.print(Logger.log);
+				break;
+			case 0:
+				Logger.write("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				vs.add(sample.concept);
+				vs.print(Logger.log);
+				break;
+			}
+		}
+	}
+	,processConcepts: function() {
+		var firstConcept = this.concepts.get(this.concepts.keys().next());
+		var extremes = Concept.searchExtremes(firstConcept);
+		var vs = new VersionSpace(extremes.all,extremes.empty);
+		vs.print(Logger.log);
+		var $it0 = $iterator(DotConceptParser.processInputRegular(this.sampleInput,this.concepts))();
+		while( $it0.hasNext() ) {
+			var sample = $it0.next();
+			switch( (sample.type)[1] ) {
+			case 1:
+				Logger.write("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				vs.substract(sample.concept);
+				vs.print(Logger.log);
+				break;
+			case 0:
+				Logger.write("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				vs.add(sample.concept);
+				vs.print(Logger.log);
+				break;
+			}
+		}
+	}
+	,processFormInputs: function() {
+		this.structureInput = js.Lib.document.getElementById("structure").value;
+		this.sampleInput = js.Lib.document.getElementById("sample").value;
+		this.concepts = DotConceptParser.processConcepts(this.structureInput);
+		var mode = DotConceptParser.determineMode(this.sampleInput);
+		switch( (mode)[1] ) {
+		case 1:
+			Logger.log("Extended mode detected.");
+			this.processExtendedConcepts();
+			break;
+		case 0:
+			Logger.log("Regular mode detected.");
+			this.processConcepts();
+			break;
+		}
+	}
+	,__class__: Processor
 }
 var Type = { __ename__ : true, __constructs__ : ["PositiveSample","NegativeSample"] }
 Type.PositiveSample = ["PositiveSample",0];
@@ -565,6 +863,46 @@ Type.PositiveSample.__enum__ = Type;
 Type.NegativeSample = ["NegativeSample",1];
 Type.NegativeSample.toString = $estr;
 Type.NegativeSample.__enum__ = Type;
+var StatementHelper = function() { }
+StatementHelper.__name__ = true;
+StatementHelper.sanitiseGeneralisations = function(generalisedStatements) {
+	var newList = new List();
+	var $it0 = generalisedStatements.iterator();
+	while( $it0.hasNext() ) {
+		var stm = $it0.next();
+		var add = true;
+		var $it1 = generalisedStatements.iterator();
+		while( $it1.hasNext() ) {
+			var stm2 = $it1.next();
+			if(stm == stm2) continue;
+			if(stm.contains(stm2)) {
+				add = false;
+				break;
+			}
+		}
+		if(add) newList.add(stm);
+	}
+	return newList;
+}
+StatementHelper.sanitiseSpecialisations = function(specialisedStatements) {
+	var newList = new List();
+	var $it0 = specialisedStatements.iterator();
+	while( $it0.hasNext() ) {
+		var stm = $it0.next();
+		var add = true;
+		var $it1 = specialisedStatements.iterator();
+		while( $it1.hasNext() ) {
+			var stm2 = $it1.next();
+			if(stm == stm2) continue;
+			if(stm2.contains(stm)) {
+				add = false;
+				break;
+			}
+		}
+		if(add) newList.add(stm);
+	}
+	return newList;
+}
 var Std = function() { }
 Std.__name__ = true;
 Std["is"] = function(v,t) {
@@ -675,25 +1013,25 @@ StringTools.isEOF = function(c) {
 	return c != c;
 }
 var VersionSpace = function(mostGeneral,mostSpecific) {
-	this.G = new Hash();
-	this.G.set(mostGeneral.name,mostGeneral);
-	this.S = new Hash();
-	this.S.set(mostSpecific.name,mostSpecific);
+	this.G = new List();
+	this.G.add(mostGeneral);
+	this.S = new List();
+	this.S.add(mostSpecific);
 };
 VersionSpace.__name__ = true;
-VersionSpace.searchExtremes = function(concepts) {
+VersionSpace.searchExtremes = function(statements) {
 	var all = null;
 	var empty = null;
-	var $it0 = $iterator(concepts)();
+	var $it0 = $iterator(statements)();
 	while( $it0.hasNext() ) {
-		var concept = $it0.next();
-		if(concept.getNumberOfParents() == 0) {
+		var statement = $it0.next();
+		if(statement.isAll()) {
 			if(all != null) throw "Disconnected structure! Two heads.";
-			all = concept;
+			all = statement;
 		}
-		if(concept.getNumberOfChildren() == 0) {
+		if(statement.isEmpty()) {
 			if(empty != null) throw "Disconnected structure! Two bottoms.";
-			empty = concept;
+			empty = statement;
 		}
 	}
 	if(all == null) throw "Invalid structure! No all.";
@@ -702,7 +1040,7 @@ VersionSpace.searchExtremes = function(concepts) {
 }
 VersionSpace.prototype = {
 	print: function(printf) {
-		printf("The Version Space is now defined by: <div class=\"vs\">G: " + this.ms(this.G) + "<br />   S: " + this.ms(this.S) + "</div>");
+		printf("The Version Space is now defined by: <div class=\"vs\">G: " + Std.string(this.G) + "<br />   S: " + Std.string(this.S) + "</div>");
 	}
 	,ms: function(hc) {
 		var rv = "{";
@@ -715,70 +1053,45 @@ VersionSpace.prototype = {
 		return rv + "}";
 	}
 	,sanitizeVersionSpace: function() {
-		var toRemove = new List();
+		this.S = StatementHelper.sanitiseGeneralisations(this.S);
+		var newG = new List();
 		var $it0 = this.G.iterator();
 		while( $it0.hasNext() ) {
 			var general = $it0.next();
 			var $it1 = this.S.iterator();
 			while( $it1.hasNext() ) {
 				var specific = $it1.next();
-				if(!general.contains(specific)) toRemove.add(general);
+				if(general.contains(specific)) newG.add(general);
 			}
 		}
-		var $it2 = toRemove.iterator();
-		while( $it2.hasNext() ) {
-			var val = $it2.next();
-			this.G.remove(val.name);
-		}
+		this.G = StatementHelper.sanitiseSpecialisations(newG);
 	}
-	,substract: function(concept) {
-		var toRemove = new List();
-		var toAdd = new List();
+	,substract: function(statement) {
+		var newG = new List();
 		var $it0 = this.G.iterator();
 		while( $it0.hasNext() ) {
 			var val = $it0.next();
-			toRemove.add(val);
-			var $it1 = val.specialise(concept).iterator();
+			var $it1 = val.specialise(statement).iterator();
 			while( $it1.hasNext() ) {
 				var specialised = $it1.next();
-				toAdd.add(specialised);
+				newG.add(specialised);
 			}
 		}
-		var $it2 = toRemove.iterator();
-		while( $it2.hasNext() ) {
-			var val = $it2.next();
-			this.G.remove(val.name);
-		}
-		var $it3 = toAdd.iterator();
-		while( $it3.hasNext() ) {
-			var val = $it3.next();
-			this.G.set(val.name,val);
-		}
+		this.G = newG;
 		this.sanitizeVersionSpace();
 	}
-	,add: function(concept) {
-		var toRemove = new List();
-		var toAdd = new List();
+	,add: function(statement) {
+		var newS = new List();
 		var $it0 = this.S.iterator();
 		while( $it0.hasNext() ) {
 			var val = $it0.next();
-			toRemove.add(val);
-			var $it1 = val.generalise(concept).iterator();
+			var $it1 = val.generalise(statement).iterator();
 			while( $it1.hasNext() ) {
 				var generalised = $it1.next();
-				toAdd.add(generalised);
+				newS.add(generalised);
 			}
 		}
-		var $it2 = toRemove.iterator();
-		while( $it2.hasNext() ) {
-			var val = $it2.next();
-			this.S.remove(val.name);
-		}
-		var $it3 = toAdd.iterator();
-		while( $it3.hasNext() ) {
-			var val = $it3.next();
-			this.S.set(val.name,val);
-		}
+		this.S = newS;
 		this.sanitizeVersionSpace();
 	}
 	,__class__: VersionSpace

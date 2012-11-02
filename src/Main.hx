@@ -27,7 +27,7 @@ class Main {
 		poly.addChildren([orange, purple]);
 		all.addChildren([mono, poly]);
 		log("Hierarchy created. Creating version space...");
-		var vs : VersionSpace = new VersionSpace(all, empty);
+		var vs : VersionSpace<Concept> = new VersionSpace(all, empty);
 		log("Starting...");
 		vs.print(log);
 		log("Adding red...");
@@ -41,8 +41,27 @@ class Main {
 		vs.print(log);
 	}
 	
+	private function dummyStructure2() {
+		var emptyTijd = new Concept("emptyTijd");
+		var voormiddag = new Concept("voormiddag");
+		var namiddag = new Concept("namiddag");
+		var avond =  new Concept("avond");
+		var nacht = new Concept("nacht");
+		
+		var empty : Concept = new Concept("empty");
+		var blue : Concept = new Concept("blue");
+		var green : Concept = new Concept("green");
+		var red : Concept = new Concept("red");
+		var orange : Concept = new Concept("orange");
+		var purple : Concept = new Concept("purple");
+		var mono : Concept = new Concept("mono");
+		var poly : Concept = new Concept("poly");
+		var all :Concept = new Concept("all");
+	}
+	
 	static function main() {
 		Processor.moo();
+		ExtendedConcept.moo();
 		// do nothing; wait for event to trigger
 	}
 }

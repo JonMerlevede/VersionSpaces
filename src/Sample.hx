@@ -1,8 +1,8 @@
 package ;
 
-typedef Sample = {
+typedef Sample<T : Statement<T>> = {
 	var type : Type;
-	var concept : Concept;
+	var concept : T;
 }
 
 enum Type {

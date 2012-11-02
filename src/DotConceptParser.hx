@@ -46,20 +46,27 @@ class DotConceptParser {
 		return concepts;
 	}
 	
-	public static function processInput(string : String, concepts : Hash<Concept>) : Iterable<Sample> {
+	public static function determineMode(samples : String) : Processor.Mode {
+		if (Helper.containsChar(samples,'['))
+			return Processor.Mode.EXTENDED;
+		else
+			return Processor.Mode.REGULAR;
+	}
+	
+	private static function processInput <T : Statement<T>> (string : String, f : String -> T) : Iterable<Sample<T>>{
 		var lines = string.split("\n");
-		var examples : List<Sample> = new List<Sample>();
+		var examples : List<Sample<T>> = new List<Sample<T>>();
 		var i = 0;
 		for (line in lines) {
 			i++;
 			line = StringTools.trim(line);
 			var type : String = line.substr(0,1);
-			var conceptKey : String = StringTools.trim(line.substr(1));
+			var statementString : String = StringTools.trim(line.substr(1));
 			if (type == "-") {
-				var tmp : Sample = {type : Sample.Type.NegativeSample, concept : concepts.get(conceptKey)};
+				var tmp : Sample<T> = {type : Sample.Type.NegativeSample, concept : f(statementString)};
 				examples.add(tmp);
 			} else if (type == "+") {
-				var tmp : Sample = {type : Sample.Type.PositiveSample, concept : concepts.get(conceptKey)}; 
+				var tmp : Sample<T> = {type : Sample.Type.PositiveSample, concept : f(statementString)}; 
 				examples.add(tmp);
 			} else {
 				if (!Helper.isEmptyLine(line))
@@ -67,5 +74,29 @@ class DotConceptParser {
 			}
 		}
 		return examples;
+	}
+	
+	public static function processInputRegular(string : String, allConcepts : Hash<Concept>) : Iterable<Sample<Concept>> {
+		return processInput(string, function (conceptKey : String) : Concept {
+			return allConcepts.get(conceptKey);
+		});
+	}
+	
+	public static function processInputExtended(string : String, allConcepts : Hash<Concept>) : Iterable<Sample<ExtendedConcept>> {
+		return processInput(string, function (extendedConceptString : String) : ExtendedConcept {
+			extendedConceptString = extendedConceptString.substr(1,extendedConceptString.length - 2); // remove [ and ]
+			var conceptKeys = extendedConceptString.split('.'); // explode on .
+			Logger.debug("Processing extended concept " + conceptKeys + ".");
+			var concepts : List<Concept> = new List<Concept>(); // process concepts and create extended concepts
+			for (key in conceptKeys) {
+				Logger.debug("Looking up key " + key);
+				concepts.add(allConcepts.get(key));
+			}
+			var ec = new ExtendedConcept(concepts);
+			Logger.debug("Created extended concept " + ec);
+			return ec;
+		});
+//		var lines = string.split("\n");
+//		var examples : List<
 	}
 }

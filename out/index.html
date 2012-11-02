@@ -35,6 +35,9 @@
 	textarea#structure {
 		height: 200px;
 	}
+	.debug {
+		color:#BBBBBB;
+	}
 	.concept {
 		font-weight: bold;
 	}
@@ -47,31 +50,65 @@
 		margin-left:40px;
 	}
 </style>
-<body>
+<script>
+	function regular() {
+		document.getElementById('structure').value = (
+			"empty -> blue, green, red\n"
+			+"empty -> orange\n"
+			+"empty -> purple\n"
+			+"blue -> mono\n"
+			+"green -> mono\n"
+			+"red -> mono\n"
+			+"orange -> poly\n"
+			+"purple -> poly\n"
+			+"mono -> all\n"
+			+"poly -> all");
+		document.getElementById('sample').value = (
+			"+red\n"
+			+"-purple\n"
+			+"+blue");
+	}
+	function extended() {
+		document.getElementById('structure').value = (
+			"emptycolors -> blue, green, red\n"
+			+"emptycolors -> orange\n"
+			+"emptycolors -> purple\n"
+			+"blue -> mono\n"
+			+"green -> mono\n"
+			+"red -> mono\n"
+			+"orange -> poly\n"
+			+"purple -> poly\n"
+			+"mono -> allcolors\n"
+			+"poly -> allcolors\n\n\n"
+			+"emptytime -> noon\n"
+			+"emptytime -> afternoon\n"
+			+"emptytime -> evening\n"
+			+"noon -> alltime\n"
+			+"afternoon -> alltime\n"
+			+"evening -> alltime\n"
+			+"night -> alltime");
+		document.getElementById('sample').value = (
+			"-[purple.afternoon]\n"
+			+"+[red.noon]\n"
+			+"+[blue.evening]");
+	}
+</script>
+<body onload="extended();">
 <h1>Version Spaces Processor</h1>
 <p>
 <form name="myForm">
+<input type="button" value="Regular" onclick="regular();" />
+<input type="button" value="Extended" onclick="extended();" />
 <table>
 <tr>
 	<td>Structure definition</td>
 	<td>
-		<textarea id="structure">empty -> blue, green, red
-empty -> orange
-empty -> purple
-blue -> mono
-green -> mono
-red -> mono
-orange -> poly
-purple -> poly
-mono -> all
-poly -> all</textarea>
+		<textarea id="structure"></textarea>
 	</td>
 </tr><tr>
 	<td>Sample definition</td>
 	<td>
-		<textarea id="sample">+red
--purple
-+blue</textarea>
+		<textarea id="sample"></textarea>
 	</td>
 </tr><tr>
 	<td colspan="2" align="center"><input type="button" value="Submit" onclick="Processor.process();" /></td>

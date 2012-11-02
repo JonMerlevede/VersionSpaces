@@ -4,30 +4,24 @@ package ;
  * ...
  * @author Jonathan Merlevede
  */
-
-typedef Extremes = {
-	var all : Concept;
-	var empty : Concept;
-}
-
-class VersionSpace {
+class VersionSpace<T : Statement<T>> {
 	
-	public var G (default,null) : Hash<Concept>;
-	public var S (default,null) : Hash<Concept>;
+	public var G (default,null) : List<T>;
+	public var S (default,null) : List<T>;
 	
-	public static function searchExtremes(concepts : Iterable<Concept>) : Extremes {
-		var all : Concept = null;
-		var empty : Concept = null;
-		for (concept in concepts) {
-			if (concept.numberOfParents == 0) {
+	public static function searchExtremes <T : Statement<T>> (statements : Iterable<T>) : Extremes<T> {
+		var all : T = null;
+		var empty : T = null;
+		for (statement in statements) {
+			if (statement.isAll()) {
 				if (all != null)
 					throw "Disconnected structure! Two heads.";
-				all = concept;
+				all = statement;
 			}
-			if (concept.numberOfChildren == 0) {
+			if (statement.isEmpty()) {
 				if (empty != null)
 					throw "Disconnected structure! Two bottoms.";
-				empty = concept;
+				empty = statement;
 			}
 		}
 		if (all == null)
@@ -37,64 +31,56 @@ class VersionSpace {
 		return { all : all, empty : empty };
 	}
 	
-	public function new (mostGeneral : Concept, mostSpecific : Concept) {
-		G = new Hash<Concept>();
-		G.set(mostGeneral.name,mostGeneral);
-		S = new Hash<Concept>();
-		S.set(mostSpecific.name,mostSpecific);
+	public function new (mostGeneral : T, mostSpecific : T) {
+		G = new List<T>();
+		G.add(mostGeneral);
+		S = new List<T>();
+		S.add(mostSpecific);
 	}
 	
-	public function add(concept : Concept) : Void {
+	public function add(statement : T) : Void {
 		// The boundary defined by S needs to be raised.
 		// Positive examples ==> generalization
-		var toRemove = new List<Concept>();
-		var toAdd = new List<Concept>();
+		var newS = new List<T>();
 		for (val in S) {
-			toRemove.add(val);
-			for (generalised in val.generalise(concept))
-				toAdd.add(generalised);
+			for (generalised in val.generalise(statement)) {
+				Logger.debug('Adding generalised statements: ' + generalised);
+				newS.add(generalised);
+			}
 		}
-		for (val in toRemove)
-			S.remove(val.name); // note that val.name is the key of val in S
-		for (val in toAdd)
-			S.set(val.name,val);
-		// All the elements in G always need to contain all elements in S
+		S = newS;
 		sanitizeVersionSpace();
 	}
 	
-	public function substract(concept : Concept) : Void {
+	public function substract(statement : T) : Void {
 		// The boundary defined by G needs to be lowered.
 		// Negative examples ==> specialization
-		var toRemove = new List<Concept>();
-		var toAdd = new List<Concept>();
+		var newG = new List<T>();
 		for (val in G) {
-			toRemove.add(val);
-			for (specialised in val.specialise(concept))
-				toAdd.add(specialised);
+			for (specialised in val.specialise(statement)) {
+				Logger.debug('Adding specialised statements: ' + specialised);
+				newG.add(specialised);
+			}
 		}
-		for (val in toRemove)
-			G.remove(val.name); // note that val.name is the key of val in G
-		for (val in toAdd)
-			G.set(val.name,val);	
-		// All the elements in G always need to contain all elements in S
+		G = newG;
 		sanitizeVersionSpace();
 	}
 	
 	private function sanitizeVersionSpace() : Void {
+		S = StatementHelper.sanitiseGeneralisations(S);
 		// All the elements in G always need to contain all elements in S
-		var toRemove = new List<Concept>();
+		var newG : List<T> = new List<T>();
 		for (general in G) {
 			for (specific in S) {
-				if (!general.contains(specific)) {
-					toRemove.add(general);
+				if (general.contains(specific)) {
+					newG.add(general);
 				}
 			}
 		}
-		for (val in toRemove)
-			G.remove(val.name);
+		G = StatementHelper.sanitiseSpecialisations(newG);
 	}
 	
-	public function ms(hc : Hash<Concept>) : String {
+	public function ms(hc : Hash<Statement<T>>) : String {
 		var rv : String = "{";
 		var iter = hc.keys();
 		while (iter.hasNext()) {
@@ -107,6 +93,6 @@ class VersionSpace {
 	}
 	
 	public function print(printf : String->Void) {
-		printf('The Version Space is now defined by: <div class="vs">G: ' + ms(G) + "<br />   S: " + ms(S) + '</div>');
+		printf('The Version Space is now defined by: <div class="vs">G: ' + G + "<br />   S: " + S + '</div>');
 	}
 }

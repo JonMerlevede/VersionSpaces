@@ -5,12 +5,30 @@ package ;
  * @author Jonathan Merlevede
  */
 
-class Concept {
+class Concept implements Statement<Concept> {
 	public var name(default, null) : String;
 	public var children(default, null) : List<Concept>;
 	public var parents(default, null) : List<Concept>;
 	public var numberOfParents(getNumberOfParents, never) : Int;
 	public var numberOfChildren(getNumberOfChildren, never) : Int;
+	
+	public static function searchExtremes(concept : Concept) : Extremes<Concept> {
+		var all : Concept = concept;
+		var empty : Concept = concept;
+		while (all.parents.length != 0)
+			all = all.parents.first();
+		while (empty.children.length != 0)
+			empty = empty.children.first();
+		return { all : all, empty : empty };
+	}
+	
+	public function isAll() : Bool {
+		return (this.parents.length == 0);
+	}
+	
+	public function isEmpty() : Bool {
+		return (this.children.length == 0);
+	}
 	
 	private function getNumberOfParents() {
 		return parents.length;
@@ -24,6 +42,10 @@ class Concept {
 		this.name = name;
 		children = new List<Concept>();
 		parents = new List<Concept>();
+	}
+	
+	public function pure() : Concept {
+		return this;
 	}
 	
 	public function toString() {
@@ -51,73 +73,81 @@ class Concept {
 	}
 	
 	public function generalise(concept : Concept) : List<Concept> {
-		// If this concept already contains the concept no generalization is necessary
+		Logger.debugInline('Generalising from ' + this + '...');
+		// BASE CASE: if this concept already contains the concept no generalization is necessary
 		if (contains(concept)) {
+			Logger.debug('match');
 			var tmp = new List<Concept>();
 			tmp.add(this);
 			return tmp;
 		}
-		// Generalise this concept until the given concept is contained
-		var rv = new Hash<Concept>();
+		// RECURSION CASE : generalise this concept until the given concept is contained
+		Logger.debug('no match; recursing');
+		var generalisations = new List<Concept>();
 		for (parent in parents) {
-			var generalisations = parent.generalise(concept);
-			for (v in generalisations)
-				rv.set(v.name,v);
+			var gs = parent.generalise(concept);
+			for (g in gs)
+				generalisations.add(g);
 		}
 		// Remove general concepts from the array
-		var toRemove= new List<String>();
-		for (conceptKey in rv.keys()) {
-			var concept = rv.get(conceptKey);
-			for (concept2 in rv) {
-				if (concept == concept2)
-					continue;
-				if (concept.contains(concept2))
-					toRemove.add(conceptKey);
-			}
-		}
-		for (val in toRemove)
-			rv.remove(val);
-		return Helper.hashToList(rv);
+//		var toRemove= new List<String>();
+//		for (conceptKey in rv.keys()) {
+//			var concept = rv.get(conceptKey);
+//			for (concept2 in rv) {
+//				if (concept == concept2)
+//					continue;
+//				if (concept.contains(concept2))
+//					toRemove.add(conceptKey);
+//			}
+//		}
+//		for (val in toRemove)
+//			rv.remove(val);
+		Logger.debug('Sanitising ' + generalisations);
+		generalisations = StatementHelper.sanitiseGeneralisations(generalisations);
+		Logger.debug('Sanitised: ' + generalisations);
+		return generalisations;
 	}
 	
 	public function specialise(concept : Concept) : List<Concept> {
-		// If the given concept is already not contained by this concept, return this concept
+		// BASE CASE
+		// If the given concept is not contained by this concept, return this concept
 		if (!contains(concept)) {
 			var tmp = new List<Concept>();
 			tmp.add(this);
 			return tmp;
 		}
+		// RECURSION
 		// Specialize this concept until the given concept is no longer contained
-		var rv = new Hash<Concept>();
+		var specialisations = new List<Concept>();
 		for (child in children) {
-			var specialisations = child.specialise(concept);
-			for (v in specialisations)
-				rv.set(v.name,v);
+			var ss = child.specialise(concept);
+			for (s in ss)
+				specialisations.add(s);
 		}
+		specialisations = StatementHelper.sanitiseSpecialisations(specialisations);
+		return specialisations;
 		// Remove specialized concepts from the array
-		var toRemove = new List<String>();
-		for (conceptKey in rv.keys()) {
-			var concept = rv.get(conceptKey);
-			for (concept2 in rv) {
-				if (concept == concept2)
-					continue;
-				if (concept2.contains(concept)) {
-					toRemove.add(conceptKey);
-//					rv.remove(conceptKey);
-				}
-			}
-		}
-		for (val in toRemove)
-			rv.remove(val);
-		return Helper.hashToList(rv);
+//		var toRemove = new List<String>();
+//		for (conceptKey in rv.keys()) {
+//			var concept = rv.get(conceptKey);
+//			for (concept2 in rv) {
+//				if (concept == concept2)
+//					continue;
+//				if (concept2.contains(concept)) {
+//					toRemove.add(conceptKey);
+////					rv.remove(conceptKey);
+//				}
+//			}
+//		}
+//		for (val in toRemove)
+//			rv.remove(val);
 	}
 	
 	public function contains(concept : Concept) : Bool {
-		// A concept always contains itself
+		// BASE CASE: a concept contains itself
 		if (concept == this)
 			return true;
-		// A concept contains all concepts of its children
-		// (==> does not contain the concept in the case of no children)
+		// RECURSION CASE: a concept contains all concepts of its children
 		for (child in children) {
 			if (child.contains(concept))
 				return true;
