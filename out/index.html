@@ -70,27 +70,84 @@
 	}
 	function extended() {
 		document.getElementById('structure').value = (
-			"emptycolors -> blue, green, red\n"
-			+"emptycolors -> orange\n"
-			+"emptycolors -> purple\n"
-			+"blue -> mono\n"
-			+"green -> mono\n"
-			+"red -> mono\n"
-			+"orange -> poly\n"
-			+"purple -> poly\n"
-			+"mono -> allcolors\n"
-			+"poly -> allcolors\n\n\n"
-			+"emptytime -> noon\n"
-			+"emptytime -> afternoon\n"
-			+"emptytime -> evening\n"
-			+"noon -> alltime\n"
-			+"afternoon -> alltime\n"
-			+"evening -> alltime\n"
-			+"night -> alltime");
+			"emptyvalue -> one,seven,eight,nine,ten,J,Q,K\n"
+			+"one -> ace\n"
+			+"seven -> number\n"
+			+"eight -> number\n"
+			+"nine -> number\n"
+			+"ten -> number\n"
+			+"J -> picture\n"
+			+"Q -> picture\n"
+			+"K -> picture\n"
+			+"ace -> allvalue\n"
+			+"number -> allvalue\n"
+			+"picture -> allvalue\n\n"
+			+"emptykind -> clubs,spades,diamonds,hearts\n"
+			+"clubs -> black\n"
+			+"spades -> black\n"
+			+"diamonds -> red\n"
+			+"hearts -> red\n"
+			+"black -> allkind\n"
+			+"red -> allkind");
 		document.getElementById('sample').value = (
-			"-[purple.afternoon]\n"
-			+"+[red.noon]\n"
-			+"+[blue.evening]");
+			"+[seven.diamonds]\n"
+			+"-[ace.clubs]\n"
+			+"-[Q.hearts]\n"
+			+"+[nine.hearts]\n"
+			+"-[eight.clubs]\n");
+	}
+	function extended2() {
+		var structure = "emptyHobby -> MO,SD,Da,Fi,Re\n"
+			+"MO -> SC\n"
+			+"SD -> SC\n"
+			+"SC -> Co\n"
+			+"Da -> Co\n"
+			+"Fi -> Bo\n"
+			+"Re -> Bo\n"
+			+"Co -> allHobby\n"
+			+"Bo -> allHobby\n\n"
+			+"emptyMusic -> HR,NW,Ja,HH\n"
+			+"HR -> Us\n"
+			+"NW -> Us\n\n"
+			+"Ja -> NU\n"
+			+"HH -> NU\n"
+			+"Us -> allMusic\n"
+			+"NU -> allMusic\n\n"
+			+"emptyAge ->";
+		var i = 0;
+		while (i < 80) {
+			structure += "a" + i + ", ";
+			i++;
+		}
+		structure += "a80 \n"
+		i = 0
+		while (i <= 16) {
+			structure += "a" + i + " -> VY\n";
+			i++;
+		}
+		while (i <= 29) {
+			structure += "a" + i + " -> Yo\n";
+			i++;
+		}
+		while (i <= 80) {
+			structure += "a" + i + " -> Ol\n";
+			i++;
+		}
+		structure += "VY -> allAge\n"
+			+ "Yo -> allAge\n"
+			+ "Ol -> allAge\n\n"
+			+ "emptyPhoto -> Ha,Ne,Ug\n"
+			+ "Ha -> allPhoto\n"
+			+ "Ne -> allPhoto\n"
+			+ "Ug -> allPhoto";
+		document.getElementById('structure').value = structure;
+		
+		document.getElementById('sample').value = (
+			 "-[Fi.HH.a16.Ha]\n"
+			+"+[SD.NW.a18.Ne]\n"
+			+"-[Da.HR.a32.Ug]\n"
+			+"+[MO.HR.a25.Ha]\n"
+			+"-[SD.Ja.a29.Ug]");
 	}
 </script>
 <body onload="extended();">
@@ -99,6 +156,7 @@
 <form name="myForm">
 <input type="button" value="Regular" onclick="regular();" />
 <input type="button" value="Extended" onclick="extended();" />
+<input type="button" value="Extended - difficult" onclick="extended2();" />
 <table>
 <tr>
 	<td>Structure definition</td>

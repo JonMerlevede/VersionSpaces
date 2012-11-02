@@ -1061,7 +1061,7 @@ VersionSpace.prototype = {
 			var $it1 = this.S.iterator();
 			while( $it1.hasNext() ) {
 				var specific = $it1.next();
-				if(specific.contains(general) && specific != general) continue;
+				if(!general.contains(specific)) continue;
 				newG.add(general);
 			}
 		}

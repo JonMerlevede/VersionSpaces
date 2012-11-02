@@ -73,9 +73,12 @@ class VersionSpace<T : Statement<T>> {
 		var newG : List<T> = new List<T>();
 		for (general in G) {
 			for (specific in S) {
-				if (specific.contains(general) && specific != general)
+				if (!general.contains(specific))
 					continue;
 				newG.add(general);
+//				if (specific.contains(general) && specific != general)
+//					continue;
+//				newG.add(general);
 //				if (general.contains(specific)) {
 //					newG.add(general);
 //					continue;
