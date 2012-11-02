@@ -136,18 +136,24 @@ DotConceptParser.processConcepts = function(string) {
 			if(!Helper.isEmptyLine(line)) Logger.warn("Ignoring line " + i + " (" + line + ")");
 			continue;
 		}
-		connection[0] = StringTools.trim(connection[0]);
-		connection[1] = StringTools.trim(connection[1]);
-		var parent, child;
-		if(concepts.exists(connection[0])) child = concepts.get(connection[0]); else {
-			child = new Concept(connection[0]);
+		var childKey = StringTools.trim(connection[0]);
+		var child, parent;
+		if(concepts.exists(childKey)) child = concepts.get(childKey); else {
+			child = new Concept(childKey);
 			concepts.set(child.name,child);
 		}
-		if(concepts.exists(connection[1])) parent = concepts.get(connection[1]); else {
-			parent = new Concept(connection[1]);
-			concepts.set(parent.name,parent);
+		var parentKeys = connection[1].split(",");
+		var _g1 = 0;
+		while(_g1 < parentKeys.length) {
+			var val = parentKeys[_g1];
+			++_g1;
+			var parentKey = StringTools.trim(val);
+			if(concepts.exists(parentKey)) parent = concepts.get(parentKey); else {
+				parent = new Concept(parentKey);
+				concepts.set(parent.name,parent);
+			}
+			parent.addChild(child);
 		}
-		parent.addChild(child);
 	}
 	return concepts;
 }
@@ -443,6 +449,9 @@ Logger.warn = function(m) {
 Logger.log = function(message) {
 	js.Lib.document.getElementById("output").innerHTML = js.Lib.document.getElementById("output").innerHTML + "<br />" + message;
 }
+Logger.clear = function() {
+	js.Lib.document.getElementById("output").innerHTML = "";
+}
 var Main = function() { }
 Main.__name__ = true;
 Main.log = function(message) {
@@ -486,7 +495,7 @@ Main.prototype = {
 }
 var Processor = function() {
 	try {
-		this.processFormInputs();
+		Processor.processFormInputs();
 	} catch( msg ) {
 		if( js.Boot.__instanceof(msg,String) ) {
 			Logger.error(msg);
@@ -494,37 +503,38 @@ var Processor = function() {
 	}
 };
 Processor.__name__ = true;
+Processor.processFormInputs = function() {
+	var structureInput = js.Lib.document.getElementById("structure").value;
+	var sampleInput = js.Lib.document.getElementById("sample").value;
+	var concepts = DotConceptParser.processConcepts(structureInput);
+	var extremes = VersionSpace.searchExtremes(concepts);
+	var vs = new VersionSpace(extremes.all,extremes.empty);
+	vs.print(Logger.log);
+	var $it0 = $iterator(DotConceptParser.processInput(sampleInput,concepts))();
+	while( $it0.hasNext() ) {
+		var sample = $it0.next();
+		switch( (sample.type)[1] ) {
+		case 1:
+			Logger.write("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+			vs.substract(sample.concept);
+			vs.print(Logger.log);
+			break;
+		case 0:
+			Logger.write("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+			vs.add(sample.concept);
+			vs.print(Logger.log);
+			break;
+		}
+	}
+}
 Processor.moo = function() {
 }
 Processor.process = function() {
-	new Processor();
+	Logger.clear();
+	Processor.processFormInputs();
 }
 Processor.prototype = {
-	processFormInputs: function() {
-		var structureInput = js.Lib.document.getElementById("structure").value;
-		var sampleInput = js.Lib.document.getElementById("sample").value;
-		var concepts = DotConceptParser.processConcepts(structureInput);
-		var extremes = VersionSpace.searchExtremes(concepts);
-		var vs = new VersionSpace(extremes.all,extremes.empty);
-		vs.print(Logger.log);
-		var $it0 = $iterator(DotConceptParser.processInput(sampleInput,concepts))();
-		while( $it0.hasNext() ) {
-			var sample = $it0.next();
-			switch( (sample.type)[1] ) {
-			case 1:
-				Logger.write("Substracting concept " + Std.string(sample.concept));
-				vs.substract(sample.concept);
-				vs.print(Logger.log);
-				break;
-			case 0:
-				Logger.write("Adding concept " + Std.string(sample.concept));
-				vs.add(sample.concept);
-				vs.print(Logger.log);
-				break;
-			}
-		}
-	}
-	,__class__: Processor
+	__class__: Processor
 }
 var Type = { __ename__ : true, __constructs__ : ["PositiveSample","NegativeSample"] }
 Type.PositiveSample = ["PositiveSample",0];

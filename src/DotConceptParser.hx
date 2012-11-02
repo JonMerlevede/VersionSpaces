@@ -21,22 +21,27 @@ class DotConceptParser {
 					Logger.warn("Ignoring line " + i + " (" + line + ")"); 
 				continue;
 			}
-			connection[0] = StringTools.trim(connection[0]);
-			connection[1] = StringTools.trim(connection[1]);
-			var parent : Concept, child : Concept;
-			if (concepts.exists(connection[0]))
-				child = concepts.get(connection[0]);
+			
+			var childKey = StringTools.trim(connection[0]);
+//			connection[1] = StringTools.trim(connection[1]);
+			var child : Concept, parent : Concept;
+			if (concepts.exists(childKey))
+				child = concepts.get(childKey);
 			else {
-				child = new Concept(connection[0]);
+				child = new Concept(childKey);
 				concepts.set(child.name,child);
 			}
-			if (concepts.exists(connection[1]))
-				parent = concepts.get(connection[1]);
-			else {
-				parent = new Concept(connection[1]);
-				concepts.set(parent.name,parent);
+			var parentKeys = connection[1].split(",");
+			for (val in parentKeys) {
+				var parentKey = StringTools.trim(val);
+				if (concepts.exists(parentKey))
+					parent = concepts.get(parentKey);
+				else {
+					parent = new Concept(parentKey);
+					concepts.set(parent.name,parent);
+				}
+				parent.addChild(child);
 			}
-			parent.addChild(child);
 		}
 		return concepts;
 	}

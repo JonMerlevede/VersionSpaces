@@ -4,18 +4,43 @@
 "JavaScript"></script>
 <script src="version-spaces.js"></script>
 <style>
-	table {
-		
+	body {
+		font-family:"DejaVu Sans",Verdana,sans-serif;
 	}
 	td:first-child {
 		width:180px;
 	}
 	textarea {
-		width: 200px;
+		font-family:"DejaVu Sans Mono",monospace;
+		font-size:0.8em;
+		width: 300px;
 		height: 100px;
+		border:1px solid black;
+		padding:4px;
 	}
+	textarea:focus {
+		background-color:#FFFFEF;
+		border:3px solid black;
+		padding:2px;
+	}
+	input[type=button] {
+		border:1px solid black;
+		padding:4px;
+	}
+	input[type=button]:focus, input[type=button]:hover {
+		border:3px solid black;
+		padding:2px;
+	}
+	
 	textarea#structure {
 		height: 200px;
+	}
+	.concept {
+		font-weight: bold;
+	}
+	.error {
+		font-weight: bold;
+		color: red;
 	}
 </style>
 <body>
@@ -26,10 +51,7 @@
 <tr>
 	<td>Structure definition</td>
 	<td>
-		<textarea id="structure">
-empty -> blue
-empty -> green
-empty -> red
+		<textarea id="structure">empty -> blue, green, red
 empty -> orange
 empty -> purple
 blue -> mono
@@ -38,17 +60,14 @@ red -> mono
 orange -> poly
 purple -> poly
 mono -> all
-poly -> all
-		</textarea>
+poly -> all</textarea>
 	</td>
 </tr><tr>
 	<td>Sample definition</td>
 	<td>
-		<textarea id="sample">
-+red
+		<textarea id="sample">+red
 -purple
-+blue
-		</textarea>
++blue</textarea>
 	</td>
 </tr><tr>
 	<td colspan="2" align="center"><input type="button" value="Submit" onclick="Processor.process();" /></td>

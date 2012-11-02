@@ -17,7 +17,7 @@ class Processor {
 		}
 	}
 	
-	public function processFormInputs() {
+	public static function processFormInputs() {
 		Logger.debug("Reading input..."); 
 		var structureInput : String = untyped js.Lib.document.getElementById(STRUCTURE_ID).value;
 		var sampleInput : String = untyped js.Lib.document.getElementById(SAMPLE_ID).value;
@@ -33,11 +33,11 @@ class Processor {
 		for (sample in DotConceptParser.processInput(sampleInput, concepts)) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
-					Logger.write("Substracting concept " + sample.concept);
+					Logger.write('Substracting concept <span class="concept">' + sample.concept + '</span>');
 					vs.substract(sample.concept);
 					vs.print(Logger.log);
 				case Sample.Type.PositiveSample:
-					Logger.write("Adding concept " + sample.concept);
+					Logger.write('Adding concept <span class="concept">' + sample.concept + '</span>');
 					vs.add(sample.concept);
 					vs.print(Logger.log);
 			}				
@@ -49,6 +49,7 @@ class Processor {
 	}
 	
 	public static function process() {
-		new Processor();
+		Logger.clear();
+		processFormInputs();
 	}
 }

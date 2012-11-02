@@ -12,4 +12,7 @@ class Logger {
 		js.Lib.document.getElementById(OUTPUT_ID).innerHTML =
 			js.Lib.document.getElementById(OUTPUT_ID).innerHTML + "<br />" + message;
 	}
+	public static function clear() {
+		js.Lib.document.getElementById(OUTPUT_ID).innerHTML = "";
+	}
 }
