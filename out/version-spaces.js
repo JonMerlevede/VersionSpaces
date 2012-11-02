@@ -782,8 +782,7 @@ var Processor = function() {
 		this.processFormInputs();
 		time = haxe.Timer.stamp() - time;
 		time *= 1000;
-		var timeStr = time + "";
-		timeStr = HxOverrides.substr(timeStr,0,6);
+		var timeStr = Math.round(time) + "";
 		Logger.write("Computation took " + timeStr + "ms.");
 	} catch( msg ) {
 		if( js.Boot.__instanceof(msg,String) ) {

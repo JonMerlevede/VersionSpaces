@@ -17,8 +17,7 @@ class Processor {
 			processFormInputs();
 			time = haxe.Timer.stamp() - time;
 			time *= 1000;
-			var timeStr : String = time + "";
-			timeStr = timeStr.substr(0,6);
+			var timeStr : String = Math.round(time) + "";
 			Logger.write("Computation took " + timeStr + "ms.");
 		} catch (msg : String) {
 			Logger.error(msg);
