@@ -68,14 +68,18 @@ class VersionSpace<T : Statement<T>> {
 	
 	private function sanitizeVersionSpace() : Void {
 		S = StatementHelper.sanitiseGeneralisations(S);
-		// All the elements in G always need to contain all elements in S
+		// NOT --- All the elements in G always need to contain all elements in S
+		// No element in S can be more general than any element in G.
 		var newG : List<T> = new List<T>();
 		for (general in G) {
 			for (specific in S) {
-				if (general.contains(specific)) {
-					newG.add(general);
+				if (specific.contains(general) && specific != general)
 					continue;
-				}
+				newG.add(general);
+//				if (general.contains(specific)) {
+//					newG.add(general);
+//					continue;
+//				}
 //				if (!specific.contains(general)) {
 //					newG.add(general);
 //					continue;
