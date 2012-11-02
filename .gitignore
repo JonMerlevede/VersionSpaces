@@ -1,0 +1,5 @@
+./.settings
+./out/*
+!./out/index.html
+./.paths
+./.project
