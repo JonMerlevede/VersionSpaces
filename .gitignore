@@ -1,5 +1,6 @@
 .settings
 out/*
 !out/index.html
+!out/version-spaces.js
 .paths
 .project
