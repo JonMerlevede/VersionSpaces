@@ -778,7 +778,13 @@ Mode.EXTENDED.toString = $estr;
 Mode.EXTENDED.__enum__ = Mode;
 var Processor = function() {
 	try {
+		var time = haxe.Timer.stamp();
 		this.processFormInputs();
+		time = haxe.Timer.stamp() - time;
+		time *= 1000;
+		var timeStr = time + "";
+		timeStr = HxOverrides.substr(timeStr,0,6);
+		Logger.write("Computation took " + timeStr + "ms.");
 	} catch( msg ) {
 		if( js.Boot.__instanceof(msg,String) ) {
 			Logger.error(msg);
@@ -1096,6 +1102,49 @@ VersionSpace.prototype = {
 		this.sanitizeVersionSpace();
 	}
 	,__class__: VersionSpace
+}
+var haxe = haxe || {}
+haxe.Log = function() { }
+haxe.Log.__name__ = true;
+haxe.Log.trace = function(v,infos) {
+	js.Boot.__trace(v,infos);
+}
+haxe.Log.clear = function() {
+	js.Boot.__clear_trace();
+}
+haxe.Timer = function(time_ms) {
+	var me = this;
+	this.id = window.setInterval(function() {
+		me.run();
+	},time_ms);
+};
+haxe.Timer.__name__ = true;
+haxe.Timer.delay = function(f,time_ms) {
+	var t = new haxe.Timer(time_ms);
+	t.run = function() {
+		t.stop();
+		f();
+	};
+	return t;
+}
+haxe.Timer.measure = function(f,pos) {
+	var t0 = haxe.Timer.stamp();
+	var r = f();
+	haxe.Log.trace(haxe.Timer.stamp() - t0 + "s",pos);
+	return r;
+}
+haxe.Timer.stamp = function() {
+	return new Date().getTime() / 1000;
+}
+haxe.Timer.prototype = {
+	run: function() {
+	}
+	,stop: function() {
+		if(this.id == null) return;
+		window.clearInterval(this.id);
+		this.id = null;
+	}
+	,__class__: haxe.Timer
 }
 var js = js || {}
 js.Boot = function() { }
