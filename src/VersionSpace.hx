@@ -76,10 +76,10 @@ class VersionSpace<T : Statement<T>> {
 					newG.add(general);
 					continue;
 				}
-				if (!specific.contains(general)) {
-					newG.add(general);
-					continue;
-				}
+//				if (!specific.contains(general)) {
+//					newG.add(general);
+//					continue;
+//				}
 			}
 		}
 		G = StatementHelper.sanitiseSpecialisations(newG);
