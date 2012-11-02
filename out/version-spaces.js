@@ -1061,7 +1061,14 @@ VersionSpace.prototype = {
 			var $it1 = this.S.iterator();
 			while( $it1.hasNext() ) {
 				var specific = $it1.next();
-				if(general.contains(specific)) newG.add(general);
+				if(general.contains(specific)) {
+					newG.add(general);
+					continue;
+				}
+				if(!specific.contains(general)) {
+					newG.add(general);
+					continue;
+				}
 			}
 		}
 		this.G = StatementHelper.sanitiseSpecialisations(newG);

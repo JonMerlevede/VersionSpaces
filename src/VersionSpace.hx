@@ -74,6 +74,11 @@ class VersionSpace<T : Statement<T>> {
 			for (specific in S) {
 				if (general.contains(specific)) {
 					newG.add(general);
+					continue;
+				}
+				if (!specific.contains(general)) {
+					newG.add(general);
+					continue;
 				}
 			}
 		}
