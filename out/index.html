@@ -9,12 +9,17 @@
 		max-width:60em;
 	}
 	td:first-child {
-		width:180px;
+		width:12em;
 	}
+	table {
+		width:60em
+	}
+	
 	textarea {
 		font-family:"DejaVu Sans Mono",monospace;
-		font-size:0.8em;
-		width: 300px;
+		font-size:0.9em;
+		width:54.3em; /*60=48/0.8*/
+		max-width:60em;
 		height: 100px;
 		border:1px solid black;
 		padding:4px;
@@ -26,7 +31,10 @@
 	}
 	input[type=button] {
 		border:1px solid black;
-		padding:4px;
+		padding:0.25em;
+		margin:0.25em;
+		font-size:1em;
+		width:19em;
 	}
 	input[type=button]:focus, input[type=button]:hover {
 		border:3px solid black;
@@ -45,6 +53,10 @@
 	.error {
 		font-weight: bold;
 		color: red;
+	}
+	#derive {
+		width:59em;
+		font-weight:bold;
 	}
 	div.vs {
 		display:block;
@@ -153,24 +165,27 @@
 </script>
 <body onload="extended();">
 <h1>Version Spaces Processor</h1>
+<i>Created by Jonathan Merlevede<br />
+Last edited: 3/11/2012</i>
 <p>
 This is an implementation of the
 <a href="http://en.wikipedia.org/wiki/Version_space">Version Space</a>
 algorithm in Javascript made using <a href="http://haxe.org/">Haxe</a>
 for the <a href="http://onderwijsaanbod.kuleuven.be/syllabi/e/H04L5AE.htm">Comparative Programming Languages</a>
-course at the <a href="http://www.kuleuven.be/kuleuven/">University of Leuven</a>.
+course at the <a href="http://www.kuleuven.be/kuleuven/">University of Leuven</a> in Belgium.
 An explanation of this algorithm in dutch can be found <a href="http://people.cs.kuleuven.be/~danny.deschreye/AI_Leuven/">here</a>.
 </p>
 <p>
 There are three predefined structure and sample sets. They can be loaded by
 clicking any of the three buttons below (Regular, Extended and Extended - difficult).
 Pressing the Derive button starts the Version Space algorithm.
-You can insert your own structures and sample sets by modifying
-the values in the text areas.
-</p><p>
-The three examples were taken from
+These three examples were taken from
 <a href="http://dtai.cs.kuleuven.be/education/ai/">here</a>. An explanation
 on how to derive results for them yourself can also be found there.
+</p><p>
+You can easily insert your own structures and sample sets by modifying
+the values in the text areas. The application will not necessarily give a meaningful
+error message when presented with incorrectly formatted input.
 </p>
 <p>
 <form name="myForm">
@@ -189,7 +204,7 @@ on how to derive results for them yourself can also be found there.
 		<textarea id="sample"></textarea>
 	</td>
 </tr><tr>
-	<td colspan="2" align="center"><input type="button" value="Derive" onclick="Processor.process();" /></td>
+	<td colspan="2" align="center"><input type="button" value="Derive" id="derive" onclick="Processor.process();" /></td>
 </tr>
 </table>
 <form>
