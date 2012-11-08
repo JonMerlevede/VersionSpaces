@@ -9,4 +9,6 @@ interface IIO {
 	public function errorln(m : String) : Void;
 	public function warn(m : String) : Void;
 	public function warnln(m : String) : Void;
+	public function getStructure() : String;
+	public function getSamples() : String;
 }

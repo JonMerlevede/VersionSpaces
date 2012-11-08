@@ -34,8 +34,8 @@ class Processor {
 	
 	public function processFormInputs() {
 		Main.IO.debugln("Reading input..."); 
-		structureInput = untyped js.Lib.document.getElementById(STRUCTURE_ID).value;
-		sampleInput = untyped js.Lib.document.getElementById(SAMPLE_ID).value;
+		structureInput = Main.IO.getStructure();
+		sampleInput = Main.IO.getSamples();
 		Main.IO.debugln("   Structure input: " + structureInput);
 		Main.IO.debugln("   Sample input: " + sampleInput);
 		Main.IO.debugln("Processing input...");

@@ -576,7 +576,13 @@ var JavascriptIO = function() {
 JavascriptIO.__name__ = true;
 JavascriptIO.__interfaces__ = [IIO];
 JavascriptIO.prototype = {
-	clear: function() {
+	getSamples: function() {
+		return js.Lib.document.getElementById(SAMPLE_ID).value;
+	}
+	,getStructure: function() {
+		return js.Lib.document.getElementById(STRUCTURE_ID).value;
+	}
+	,clear: function() {
 		this.sb = new StringBuf();
 		js.Lib.document.getElementById(this.output_id).innerHTML = "";
 	}
@@ -879,8 +885,8 @@ Processor.prototype = {
 	}
 	,processFormInputs: function() {
 		Main.getIO().debugln("Reading input...");
-		this.structureInput = js.Lib.document.getElementById("structure").value;
-		this.sampleInput = js.Lib.document.getElementById("sample").value;
+		this.structureInput = Main.getIO().getStructure();
+		this.sampleInput = Main.getIO().getSamples();
 		Main.getIO().debugln("   Structure input: " + this.structureInput);
 		Main.getIO().debugln("   Sample input: " + this.sampleInput);
 		Main.getIO().debugln("Processing input...");

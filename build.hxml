@@ -1,3 +1,4 @@
 -cp .\src
 -js .\out\version-spaces.js
+-D HXCPP_M64
 -main Main

@@ -47,4 +47,12 @@ class JavascriptIO implements IIO
 		sb = new StringBuf();
 		js.Lib.document.getElementById(output_id).innerHTML = "";
 	}
+	
+	public function getStructure() : String {
+		return untyped js.Lib.document.getElementById(STRUCTURE_ID).value;
+	}
+	
+	public function getSamples() : String {
+		return untyped js.Lib.document.getElementById(SAMPLE_ID).value;
+	}
 }

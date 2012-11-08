@@ -1,7 +1,5 @@
 package ;
 
-import js.Lib;
-
 /**
  * ...
  * @author Jonathan Merlevede
@@ -11,6 +9,8 @@ class Main {
 	public static var IO (getIO, never) : IIO;
 	#if js
 		private static var _IO = new JavascriptIO();
+	#elseif cpp
+		private static var _IO = new CppIO();
 	#end
 	public static function getIO() : IIO {
 		return _IO;
