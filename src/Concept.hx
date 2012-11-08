@@ -73,38 +73,25 @@ class Concept implements Statement<Concept> {
 	}
 	
 	public function generalise(concept : Concept) : List<Concept> {
-		Logger.debugInline('Generalising from ' + this + '...');
+		Main.IO.debug('Generalising from ' + this + '...');
 		// BASE CASE: if this concept already contains the concept no generalization is necessary
 		if (contains(concept)) {
-			Logger.debug('match');
+			Main.IO.debugln('match');
 			var tmp = new List<Concept>();
 			tmp.add(this);
 			return tmp;
 		}
 		// RECURSION CASE : generalise this concept until the given concept is contained
-		Logger.debug('no match; recursing');
+		Main.IO.debugln('no match; recursing');
 		var generalisations = new List<Concept>();
 		for (parent in parents) {
 			var gs = parent.generalise(concept);
 			for (g in gs)
 				generalisations.add(g);
 		}
-		// Remove general concepts from the array
-//		var toRemove= new List<String>();
-//		for (conceptKey in rv.keys()) {
-//			var concept = rv.get(conceptKey);
-//			for (concept2 in rv) {
-//				if (concept == concept2)
-//					continue;
-//				if (concept.contains(concept2))
-//					toRemove.add(conceptKey);
-//			}
-//		}
-//		for (val in toRemove)
-//			rv.remove(val);
-		Logger.debug('Sanitising ' + generalisations);
+		Main.IO.debugln('Sanitising ' + generalisations);
 		generalisations = StatementHelper.sanitiseGeneralisations(generalisations);
-		Logger.debug('Sanitised: ' + generalisations);
+		Main.IO.debugln('Sanitised: ' + generalisations);
 		return generalisations;
 	}
 	

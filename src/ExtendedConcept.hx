@@ -142,6 +142,5 @@ class ExtendedConcept implements Statement<ExtendedConcept> {
 		}
 		r += "]";
 		return r;
-		//return concepts + "";
 	}
 }

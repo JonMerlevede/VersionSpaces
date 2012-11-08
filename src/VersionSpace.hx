@@ -44,7 +44,7 @@ class VersionSpace<T : Statement<T>> {
 		var newS = new List<T>();
 		for (val in S) {
 			for (generalised in val.generalise(statement)) {
-				Logger.debug('Adding generalised statements: ' + generalised);
+				Main.IO.debugln('Adding generalised statements: ' + generalised);
 				newS.add(generalised);
 			}
 		}
@@ -58,7 +58,7 @@ class VersionSpace<T : Statement<T>> {
 		var newG = new List<T>();
 		for (val in G) {
 			for (specialised in val.specialise(statement)) {
-				Logger.debug('Adding specialised statements: ' + specialised);
+				Main.IO.debugln('Adding specialised statements: ' + specialised);
 				newG.add(specialised);
 			}
 		}

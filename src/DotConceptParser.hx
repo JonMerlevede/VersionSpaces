@@ -9,16 +9,16 @@ class DotConceptParser {
 	
 	public static function processConcepts(string : String) : Hash<Concept> {
 		var lines = string.split("\n");
-		Logger.debug("Lines: " + lines);
+		Main.IO.debugln("Lines: " + lines);
 		var concepts : Hash<Concept> = new Hash<Concept>();
 		var i = 0;
 		for (line in lines) {
 			i++;
-			Logger.debug("Processing line: " + line);
+			Main.IO.debugln("Processing line: " + line);
 			var connection = line.split("->");
 			if (connection.length != 2) {
 				if (!Helper.isEmptyLine(line))
-					Logger.warn("Ignoring line " + i + " (" + line + ")"); 
+					Main.IO.warnln("Ignoring line " + i + " (" + line + ")"); 
 				continue;
 			}
 			
@@ -70,7 +70,7 @@ class DotConceptParser {
 				examples.add(tmp);
 			} else {
 				if (!Helper.isEmptyLine(line))
-					Logger.warn("Ignoring sample " + i + " (" + line + ")");
+					Main.IO.warnln("Ignoring sample " + i + " (" + line + ")");
 			}
 		}
 		return examples;
@@ -86,14 +86,14 @@ class DotConceptParser {
 		return processInput(string, function (extendedConceptString : String) : ExtendedConcept {
 			extendedConceptString = extendedConceptString.substr(1,extendedConceptString.length - 2); // remove [ and ]
 			var conceptKeys = extendedConceptString.split('.'); // explode on .
-			Logger.debug("Processing extended concept " + conceptKeys + ".");
+			Main.IO.debugln("Processing extended concept " + conceptKeys + ".");
 			var concepts : List<Concept> = new List<Concept>(); // process concepts and create extended concepts
 			for (key in conceptKeys) {
-				Logger.debug("Looking up key " + key);
+				Main.IO.debugln("Looking up key " + key);
 				concepts.add(allConcepts.get(key));
 			}
 			var ec = new ExtendedConcept(concepts);
-			Logger.debug("Created extended concept " + ec);
+			Main.IO.debugln("Created extended concept " + ec);
 			return ec;
 		});
 //		var lines = string.split("\n");

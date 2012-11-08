@@ -1,9 +1,0 @@
-class DotConceptParser {
-	public function new() {
-	
-	}
-	
-	public function process(string : String) : Void {
-		var lines = string.split("\n");
-	}
-}

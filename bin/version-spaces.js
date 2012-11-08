@@ -49,11 +49,14 @@ Concept.prototype = {
 		return specialisations;
 	}
 	,generalise: function(concept) {
+		Main.getIO().debug("Generalising from " + Std.string(this) + "...");
 		if(this.contains(concept)) {
+			Main.getIO().debugln("match");
 			var tmp = new List();
 			tmp.add(this);
 			return tmp;
 		}
+		Main.getIO().debugln("no match; recursing");
 		var generalisations = new List();
 		var $it0 = this.parents.iterator();
 		while( $it0.hasNext() ) {
@@ -65,7 +68,9 @@ Concept.prototype = {
 				generalisations.add(g);
 			}
 		}
+		Main.getIO().debugln("Sanitising " + Std.string(generalisations));
 		generalisations = StatementHelper.sanitiseGeneralisations(generalisations);
+		Main.getIO().debugln("Sanitised: " + Std.string(generalisations));
 		return generalisations;
 	}
 	,addParents: function(parents) {
@@ -114,6 +119,7 @@ var DotConceptParser = function() { }
 DotConceptParser.__name__ = true;
 DotConceptParser.processConcepts = function(string) {
 	var lines = string.split("\n");
+	Main.getIO().debugln("Lines: " + Std.string(lines));
 	var concepts = new Hash();
 	var i = 0;
 	var _g = 0;
@@ -121,9 +127,10 @@ DotConceptParser.processConcepts = function(string) {
 		var line = lines[_g];
 		++_g;
 		i++;
+		Main.getIO().debugln("Processing line: " + line);
 		var connection = line.split("->");
 		if(connection.length != 2) {
-			if(!Helper.isEmptyLine(line)) Logger.warn("Ignoring line " + i + " (" + line + ")");
+			if(!Helper.isEmptyLine(line)) Main.getIO().warnln("Ignoring line " + i + " (" + line + ")");
 			continue;
 		}
 		var childKey = StringTools.trim(connection[0]);
@@ -168,7 +175,7 @@ DotConceptParser.processInput = function(string,f) {
 		} else if(type == "+") {
 			var tmp = { type : Type.PositiveSample, concept : f(statementString)};
 			examples.add(tmp);
-		} else if(!Helper.isEmptyLine(line)) Logger.warn("Ignoring sample " + i + " (" + line + ")");
+		} else if(!Helper.isEmptyLine(line)) Main.getIO().warnln("Ignoring sample " + i + " (" + line + ")");
 	}
 	return examples;
 }
@@ -181,14 +188,17 @@ DotConceptParser.processInputExtended = function(string,allConcepts) {
 	return DotConceptParser.processInput(string,function(extendedConceptString) {
 		extendedConceptString = HxOverrides.substr(extendedConceptString,1,extendedConceptString.length - 2);
 		var conceptKeys = extendedConceptString.split(".");
+		Main.getIO().debugln("Processing extended concept " + Std.string(conceptKeys) + ".");
 		var concepts = new List();
 		var _g = 0;
 		while(_g < conceptKeys.length) {
 			var key = conceptKeys[_g];
 			++_g;
+			Main.getIO().debugln("Looking up key " + key);
 			concepts.add(allConcepts.get(key));
 		}
 		var ec = new ExtendedConcept(concepts);
+		Main.getIO().debugln("Created extended concept " + Std.string(ec));
 		return ec;
 	});
 }
@@ -490,6 +500,11 @@ HxOverrides.iter = function(a) {
 		return this.arr[this.cur++];
 	}};
 }
+var IIO = function() { }
+IIO.__name__ = true;
+IIO.prototype = {
+	__class__: IIO
+}
 var IntHash = function() {
 	this.h = { };
 };
@@ -553,6 +568,47 @@ IntIter.prototype = {
 		return this.min < this.max;
 	}
 	,__class__: IntIter
+}
+var JavascriptIO = function() {
+	this.output_id = "output";
+	this.sb = new StringBuf();
+};
+JavascriptIO.__name__ = true;
+JavascriptIO.__interfaces__ = [IIO];
+JavascriptIO.prototype = {
+	clear: function() {
+		this.sb = new StringBuf();
+		js.Lib.document.getElementById(this.output_id).innerHTML = "";
+	}
+	,flush: function() {
+		js.Lib.document.getElementById(this.output_id).innerHTML = this.sb.b;
+	}
+	,warnln: function(m) {
+		this.writeln(m);
+	}
+	,warn: function(m) {
+		this.write(m);
+	}
+	,errorln: function(m) {
+		this.writeln(m);
+	}
+	,error: function(m) {
+		this.write(m);
+	}
+	,debugln: function(m) {
+		this.writeln("<span class=\"debug\">" + m + "</span>");
+	}
+	,debug: function(m) {
+		this.write("<span class=\"debug\">" + m + "</span>");
+	}
+	,write: function(m) {
+		this.sb.b += Std.string(m);
+	}
+	,writeln: function(m) {
+		this.sb.b += Std.string(m);
+		this.sb.b += Std.string("<br />");
+	}
+	,__class__: JavascriptIO
 }
 var List = function() {
 	this.length = 0;
@@ -683,38 +739,10 @@ StringBuf.prototype = {
 	}
 	,__class__: StringBuf
 }
-var Logger = function() { }
-Logger.__name__ = true;
-Logger.write = function(m) {
-	Logger.log(m);
-}
-Logger.debug = function(m) {
-}
-Logger.debugInline = function(m) {
-}
-Logger.error = function(m) {
-	Logger.log(m);
-}
-Logger.warn = function(m) {
-	Logger.log(m);
-}
-Logger.logInline = function(message) {
-	Logger.sb.b += Std.string(message);
-	js.Lib.document.getElementById("output").innerHTML = Logger.sb.b;
-}
-Logger.log = function(message) {
-	Logger.sb.b += Std.string(message);
-	Logger.sb.b += Std.string("<br />");
-	js.Lib.document.getElementById("output").innerHTML = Logger.sb.b;
-}
-Logger.clear = function() {
-	Logger.sb = new StringBuf();
-	js.Lib.document.getElementById("output").innerHTML = "";
-}
 var Main = function() { }
 Main.__name__ = true;
-Main.log = function(message) {
-	Logger.log(message);
+Main.getIO = function() {
+	return Main._IO;
 }
 Main.main = function() {
 	Processor.moo();
@@ -738,7 +766,7 @@ Main.prototype = {
 		var all = new Concept("all");
 	}
 	,dummyStructure: function() {
-		Logger.log("Initializing");
+		Main.getIO().writeln("Initializing");
 		var empty = new Concept("empty");
 		var blue = new Concept("blue");
 		var green = new Concept("green");
@@ -748,24 +776,24 @@ Main.prototype = {
 		var mono = new Concept("mono");
 		var poly = new Concept("poly");
 		var all = new Concept("all");
-		Logger.log("Created concepts. Inserting hierarchy...");
+		Main.getIO().writeln("Created concepts. Inserting hierarchy...");
 		empty.addParents([blue,green,red,orange,purple]);
 		mono.addChildren([blue,green,red]);
 		poly.addChildren([orange,purple]);
 		all.addChildren([mono,poly]);
-		Logger.log("Hierarchy created. Creating version space...");
+		Main.getIO().writeln("Hierarchy created. Creating version space...");
 		var vs = new VersionSpace(all,empty);
-		Logger.log("Starting...");
-		vs.print(Main.log);
-		Logger.log("Adding red...");
+		Main.getIO().writeln("Starting...");
+		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		Main.getIO().writeln("Adding red...");
 		vs.add(red);
-		vs.print(Main.log);
-		Logger.log("Substracting purple...");
+		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		Main.getIO().writeln("Substracting purple...");
 		vs.substract(purple);
-		vs.print(Main.log);
-		Logger.log("Adding blue...");
+		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		Main.getIO().writeln("Adding blue...");
 		vs.add(blue);
-		vs.print(Main.log);
+		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
 	}
 	,__class__: Main
 }
@@ -783,10 +811,12 @@ var Processor = function() {
 		time = haxe.Timer.stamp() - time;
 		time *= 1000;
 		var timeStr = Math.round(time) + "";
-		Logger.write("Computation took " + timeStr + "ms.");
+		Main.getIO().writeln("Computation took " + timeStr + "ms.");
+		var Io = js.Boot.__cast(Main.getIO() , JavascriptIO);
+		Io.flush();
 	} catch( msg ) {
 		if( js.Boot.__instanceof(msg,String) ) {
-			Logger.error(msg);
+			Main.getIO().errorln(msg);
 		} else throw(msg);
 	}
 };
@@ -794,29 +824,32 @@ Processor.__name__ = true;
 Processor.moo = function() {
 }
 Processor.process = function() {
-	Logger.clear();
+	var Io = js.Boot.__cast(Main.getIO() , JavascriptIO);
+	Io.clear();
 	new Processor();
 }
 Processor.prototype = {
 	processExtendedConcepts: function() {
 		var extendedSamples = DotConceptParser.processInputExtended(this.sampleInput,this.concepts);
+		Main.getIO().debugln("Samples found.");
 		var firstSample = $iterator(extendedSamples)().next().concept;
 		var extremes = ExtendedConcept.searchExtremes(firstSample);
+		Main.getIO().debugln("Extremes found: " + Std.string(extremes));
 		var vs = new VersionSpace(extremes.all,extremes.empty);
-		vs.print(Logger.log);
+		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
 		var $it0 = $iterator(extendedSamples)();
 		while( $it0.hasNext() ) {
 			var sample = $it0.next();
 			switch( (sample.type)[1] ) {
 			case 1:
-				Logger.write("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().writeln("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
 				vs.substract(sample.concept);
-				vs.print(Logger.log);
+				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
 				break;
 			case 0:
-				Logger.write("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().writeln("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
 				vs.add(sample.concept);
-				vs.print(Logger.log);
+				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
 				break;
 			}
 		}
@@ -824,37 +857,43 @@ Processor.prototype = {
 	,processConcepts: function() {
 		var firstConcept = this.concepts.get(this.concepts.keys().next());
 		var extremes = Concept.searchExtremes(firstConcept);
+		Main.getIO().debugln("Extremes found: " + Std.string(extremes));
 		var vs = new VersionSpace(extremes.all,extremes.empty);
-		vs.print(Logger.log);
+		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
 		var $it0 = $iterator(DotConceptParser.processInputRegular(this.sampleInput,this.concepts))();
 		while( $it0.hasNext() ) {
 			var sample = $it0.next();
 			switch( (sample.type)[1] ) {
 			case 1:
-				Logger.write("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().writeln("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
 				vs.substract(sample.concept);
-				vs.print(Logger.log);
+				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
 				break;
 			case 0:
-				Logger.write("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().writeln("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
 				vs.add(sample.concept);
-				vs.print(Logger.log);
+				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
 				break;
 			}
 		}
 	}
 	,processFormInputs: function() {
+		Main.getIO().debugln("Reading input...");
 		this.structureInput = js.Lib.document.getElementById("structure").value;
 		this.sampleInput = js.Lib.document.getElementById("sample").value;
+		Main.getIO().debugln("   Structure input: " + this.structureInput);
+		Main.getIO().debugln("   Sample input: " + this.sampleInput);
+		Main.getIO().debugln("Processing input...");
 		this.concepts = DotConceptParser.processConcepts(this.structureInput);
+		Main.getIO().debugln("Concepts found: " + Std.string(this.concepts));
 		var mode = DotConceptParser.determineMode(this.sampleInput);
 		switch( (mode)[1] ) {
 		case 1:
-			Logger.log("Extended mode detected.");
+			Main.getIO().writeln("Extended mode detected.");
 			this.processExtendedConcepts();
 			break;
 		case 0:
-			Logger.log("Regular mode detected.");
+			Main.getIO().writeln("Regular mode detected.");
 			this.processConcepts();
 			break;
 		}
@@ -1080,6 +1119,7 @@ VersionSpace.prototype = {
 			var $it1 = val.specialise(statement).iterator();
 			while( $it1.hasNext() ) {
 				var specialised = $it1.next();
+				Main.getIO().debugln("Adding specialised statements: " + Std.string(specialised));
 				newG.add(specialised);
 			}
 		}
@@ -1094,6 +1134,7 @@ VersionSpace.prototype = {
 			var $it1 = val.generalise(statement).iterator();
 			while( $it1.hasNext() ) {
 				var generalised = $it1.next();
+				Main.getIO().debugln("Adding generalised statements: " + Std.string(generalised));
 				newS.add(generalised);
 			}
 		}
@@ -1338,8 +1379,7 @@ if(typeof window != "undefined") {
 		return f(msg,[url + ":" + line]);
 	};
 }
-Logger.OUTPUT_ID = "output";
-Logger.sb = new StringBuf();
+Main._IO = new JavascriptIO();
 Processor.STRUCTURE_ID = "structure";
 Processor.SAMPLE_ID = "sample";
 Main.main();
