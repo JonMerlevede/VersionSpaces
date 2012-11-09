@@ -1,5 +1,7 @@
 package ;
-import cpp.Lib;
+#if cpp
+	import cpp.Lib;
+#end
 
 /**
  * ...
@@ -39,16 +41,16 @@ class Main {
 		Main.IO.writeln("Hierarchy created. Creating version space...");
 		var vs : VersionSpace<Concept> = new VersionSpace(all, empty);
 		Main.IO.writeln("Starting...");
-		vs.print(IO.writeln);
+		vs.print();
 		Main.IO.writeln("Adding red...");
 		vs.add(red);
-		vs.print(IO.writeln);
+		vs.print();
 		Main.IO.writeln("Substracting purple...");
 		vs.substract(purple);
-		vs.print(IO.writeln);
+		vs.print();
 		Main.IO.writeln("Adding blue...");
 		vs.add(blue);
-		vs.print(IO.writeln);
+		vs.print();
 	}
 	
 	private function dummyStructure2() {

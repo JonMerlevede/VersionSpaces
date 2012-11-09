@@ -22,6 +22,7 @@ class Processor {
 			Main.IO.flush();
 		} catch (msg : String) {
 			Main.IO.errorln(msg);
+			Main.IO.flush();
 		}
 	}
 	
@@ -54,17 +55,17 @@ class Processor {
 		var extremes : Extremes<Concept> = Concept.searchExtremes(firstConcept);
 		Main.IO.debugln("Extremes found: " + extremes);
 		var vs : VersionSpace<Concept> = new VersionSpace(extremes.all, extremes.empty);
-		vs.print(Main.IO.writeln);
+		vs.print();
 		for (sample in DotConceptParser.processInputRegular(sampleInput, concepts)) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
 					Main.IO.writeln('Substracting concept ' + sample.concept);
 					vs.substract(sample.concept);
-					vs.print(Main.IO.writeln);
+					vs.print();
 				case Sample.Type.PositiveSample:
 					Main.IO.writeln('Adding concept ' + sample.concept);
 					vs.add(sample.concept);
-					vs.print(Main.IO.writeln);
+					vs.print();
 			}
 		}
 	}
@@ -76,17 +77,26 @@ class Processor {
 		var extremes : Extremes<EC> = EC.searchExtremes(firstSample);
 		Main.IO.debugln("Extremes found: " + extremes);
 		var vs : VersionSpace<EC> = new VersionSpace(extremes.all, extremes.empty);
-		vs.print(Main.IO.writeln);
+		vs.print();
 		for (sample in extendedSamples) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
-					Main.IO.writeln('Substracting concept ' + sample.concept);
+					Main.IO.write('Substracting concept ');
+					#if js
+						Main.IO.write('<span class="concept">');
+					#end
+					Main.IO.write(""+sample.concept);
+					#if js
+						Main.IO.writeln('</span>');
+					#else
+						Main.IO.writeln();
+					#end
 					vs.substract(sample.concept);
-					vs.print(Main.IO.writeln);
+					vs.print();
 				case Sample.Type.PositiveSample:
 					Main.IO.writeln('Adding concept ' + sample.concept);
 					vs.add(sample.concept);
-					vs.print(Main.IO.writeln);
+					vs.print();
 			}
 		}
 //		var firstConcept = concepts.get(concepts.keys().next());

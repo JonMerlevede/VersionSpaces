@@ -104,9 +104,15 @@ class VersionSpace<T : Statement<T>> {
 		return (rv + "}");
 	}
 	
-	public function print(printf : String->Void) {
-		printf('The Version Space is now defined by:');
-		printf('   G: ' + G);
-		printf("   S: " + S);
+	public function print() {
+		Main.IO.writeln('The Version Space is now defined by:');
+		#if js
+			Main.IO.write('<div class="vs">');
+		#end
+		Main.IO.writeln('   G: ' + G);
+		Main.IO.writeln("   S: " + S);
+		#if js
+			Main.IO.write('</div>');
+		#end
 	}
 }

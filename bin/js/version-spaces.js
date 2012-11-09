@@ -577,10 +577,10 @@ JavascriptIO.__name__ = true;
 JavascriptIO.__interfaces__ = [IIO];
 JavascriptIO.prototype = {
 	getSamples: function() {
-		return js.Lib.document.getElementById(SAMPLE_ID).value;
+		return js.Lib.document.getElementById("sample").value;
 	}
 	,getStructure: function() {
-		return js.Lib.document.getElementById(STRUCTURE_ID).value;
+		return js.Lib.document.getElementById("structure").value;
 	}
 	,clear: function() {
 		this.sb = new StringBuf();
@@ -596,16 +596,18 @@ JavascriptIO.prototype = {
 		this.write(m);
 	}
 	,errorln: function(m) {
-		this.writeln(m);
+		this.write("<span class=\"error\">");
+		this.write(m);
+		this.writeln("</span>");
 	}
 	,error: function(m) {
+		this.write("<span class=\"error\">");
 		this.write(m);
+		this.write("</span>");
 	}
 	,debugln: function(m) {
-		this.writeln("<span class=\"debug\">" + m + "</span>");
 	}
 	,debug: function(m) {
-		this.write("<span class=\"debug\">" + m + "</span>");
 	}
 	,write: function(m) {
 		this.sb.b += Std.string(m);
@@ -754,8 +756,6 @@ Main.getIO = function() {
 Main.main = function() {
 	Processor.moo();
 	ExtendedConcept.moo();
-	var a = new Main();
-	a.dummyStructure();
 }
 Main.prototype = {
 	dummyStructure2: function() {
@@ -793,16 +793,16 @@ Main.prototype = {
 		Main.getIO().writeln("Hierarchy created. Creating version space...");
 		var vs = new VersionSpace(all,empty);
 		Main.getIO().writeln("Starting...");
-		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		vs.print();
 		Main.getIO().writeln("Adding red...");
 		vs.add(red);
-		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		vs.print();
 		Main.getIO().writeln("Substracting purple...");
 		vs.substract(purple);
-		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		vs.print();
 		Main.getIO().writeln("Adding blue...");
 		vs.add(blue);
-		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		vs.print();
 	}
 	,__class__: Main
 }
@@ -821,11 +821,11 @@ var Processor = function() {
 		time *= 1000;
 		var timeStr = Math.round(time) + "";
 		Main.getIO().writeln("Computation took " + timeStr + "ms.");
-		var Io = js.Boot.__cast(Main.getIO() , JavascriptIO);
-		Io.flush();
+		Main.getIO().flush();
 	} catch( msg ) {
 		if( js.Boot.__instanceof(msg,String) ) {
 			Main.getIO().errorln(msg);
+			Main.getIO().flush();
 		} else throw(msg);
 	}
 };
@@ -845,20 +845,23 @@ Processor.prototype = {
 		var extremes = ExtendedConcept.searchExtremes(firstSample);
 		Main.getIO().debugln("Extremes found: " + Std.string(extremes));
 		var vs = new VersionSpace(extremes.all,extremes.empty);
-		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		vs.print();
 		var $it0 = $iterator(extendedSamples)();
 		while( $it0.hasNext() ) {
 			var sample = $it0.next();
 			switch( (sample.type)[1] ) {
 			case 1:
-				Main.getIO().writeln("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().write("Substracting concept ");
+				Main.getIO().write("<span class=\"concept\">");
+				Main.getIO().write("" + Std.string(sample.concept));
+				Main.getIO().writeln("</span>");
 				vs.substract(sample.concept);
-				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+				vs.print();
 				break;
 			case 0:
-				Main.getIO().writeln("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().writeln("Adding concept " + Std.string(sample.concept));
 				vs.add(sample.concept);
-				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+				vs.print();
 				break;
 			}
 		}
@@ -868,20 +871,20 @@ Processor.prototype = {
 		var extremes = Concept.searchExtremes(firstConcept);
 		Main.getIO().debugln("Extremes found: " + Std.string(extremes));
 		var vs = new VersionSpace(extremes.all,extremes.empty);
-		vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+		vs.print();
 		var $it0 = $iterator(DotConceptParser.processInputRegular(this.sampleInput,this.concepts))();
 		while( $it0.hasNext() ) {
 			var sample = $it0.next();
 			switch( (sample.type)[1] ) {
 			case 1:
-				Main.getIO().writeln("Substracting concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().writeln("Substracting concept " + Std.string(sample.concept));
 				vs.substract(sample.concept);
-				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+				vs.print();
 				break;
 			case 0:
-				Main.getIO().writeln("Adding concept <span class=\"concept\">" + Std.string(sample.concept) + "</span>");
+				Main.getIO().writeln("Adding concept " + Std.string(sample.concept));
 				vs.add(sample.concept);
-				vs.print(($_=Main.getIO(),$bind($_,$_.writeln)));
+				vs.print();
 				break;
 			}
 		}
@@ -1092,10 +1095,12 @@ VersionSpace.searchExtremes = function(statements) {
 	return { all : all, empty : empty};
 }
 VersionSpace.prototype = {
-	print: function(printf) {
-		printf("The Version Space is now defined by:");
-		printf("   G: " + Std.string(this.G));
-		printf("   S: " + Std.string(this.S));
+	print: function() {
+		Main.getIO().writeln("The Version Space is now defined by:");
+		Main.getIO().write("<div class=\"vs\">");
+		Main.getIO().writeln("   G: " + Std.string(this.G));
+		Main.getIO().writeln("   S: " + Std.string(this.S));
+		Main.getIO().write("</div>");
 	}
 	,ms: function(hc) {
 		var rv = "{";
@@ -1390,6 +1395,8 @@ if(typeof window != "undefined") {
 		return f(msg,[url + ":" + line]);
 	};
 }
+JavascriptIO.STRUCTURE_ID = "structure";
+JavascriptIO.SAMPLE_ID = "sample";
 Main._IO = new JavascriptIO();
 Processor.STRUCTURE_ID = "structure";
 Processor.SAMPLE_ID = "sample";
