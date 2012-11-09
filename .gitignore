@@ -3,5 +3,6 @@ bin/js/*
 bin/cpp/*
 !bin/js/index.html
 !bin/js/version-spaces.js
+!bin/cpp/EMPTY.txt
 .paths
 .project
