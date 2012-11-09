@@ -6,6 +6,16 @@ typedef PositionedConcept = {
 }
 private typedef PC = PositionedConcept;
 
+/**
+ * Class representing an extended concept.
+ * An extended concept is a statement that consists of multiple concepts in separate concept trees.
+ * An example:
+	 * [a,b,c,d]
+	 * where a,b,c and d are concepts from different concept trees, is a statement in an extended language
+	 * or an 'ExtendedConcept'.
+ * 
+ * @author Jonathan Merlevede
+ */
 class ExtendedConcept implements Statement<ExtendedConcept> {
 	private var concepts : IntHash<PositionedConcept>;
 	

@@ -1,5 +1,11 @@
 package ;
 
+/**
+ * Interface that represents the capability to do IO.
+ * For different targets this interface will be implemented by different classes.
+ * 
+ * @author Jonathan Merlevede
+ */
 interface IIO {
 	public function writeln(m : String) : Void;
 	public function write(m : String) : Void;

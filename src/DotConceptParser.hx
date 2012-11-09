@@ -1,11 +1,11 @@
 package ;
 
+/**
+ * Utility class that can process concept and structure strings.
+ * 
+ * @author Jonathan Merlevede
+ */
 class DotConceptParser {
-//	public var concepts : Hash<Concept>;
-
-//	public function new() {
-//		concepts = new Hash<Concept>();
-//	}
 	
 	public static function processConcepts(string : String) : Hash<Concept> {
 		var lines = string.split("\n");

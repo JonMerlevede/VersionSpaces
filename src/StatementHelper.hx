@@ -1,6 +1,14 @@
+/**
+ * Helper class that contains helper functions
+ * that are probably usefull for all classes implementing Statement.
+ * 
+ * This class should be static, but static classes are not supported by Haxe.
+ * 
+ * @author Jonathan Merlevede
+ */
 class StatementHelper {
 	// Returns the most specific generalisatinos in the given list of generalisations.
-	// (i.e. removes general generalisations from the list)
+	// (i.e. returns a list that is the given list with the general generalisations removed)
 	public static function sanitiseGeneralisations<T : Statement<T>> (generalisedStatements : List<T>) : List<T> {
 		var newList : List<T> = new List<T>();
 		for (stm in generalisedStatements) {
@@ -20,7 +28,7 @@ class StatementHelper {
 	}
 
 	// Returns the most general specialisations in the given list of specialisations.
-	// (i.e. removes specific generalisations from the list)	
+	// (i.e. returns a list that is the given list with the specific generalisations removed)
 	public static function sanitiseSpecialisations<T : Statement<T>>(specialisedStatements: List<T>) : List<T> {
 		var newList : List<T> = new List<T>();
 		for (stm in specialisedStatements) {

@@ -1,10 +1,10 @@
 package ;
 
 /**
- * ...
+ * Class representing a concept.
+ * 
  * @author Jonathan Merlevede
  */
-
 class Concept implements Statement<Concept> {
 	public var name(default, null) : String;
 	public var children(default, null) : List<Concept>;

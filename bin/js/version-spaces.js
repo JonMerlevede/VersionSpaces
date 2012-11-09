@@ -728,83 +728,74 @@ List.prototype = {
 	}
 	,__class__: List
 }
-var StringBuf = function() {
-	this.b = "";
-};
-StringBuf.__name__ = true;
-StringBuf.prototype = {
-	toString: function() {
-		return this.b;
-	}
-	,addSub: function(s,pos,len) {
-		this.b += HxOverrides.substr(s,pos,len);
-	}
-	,addChar: function(c) {
-		this.b += String.fromCharCode(c);
-	}
-	,add: function(x) {
-		this.b += Std.string(x);
-	}
-	,__class__: StringBuf
-}
 var Main = function() {
 };
 Main.__name__ = true;
 Main.getIO = function() {
 	return Main._IO;
 }
+Main.dummyStructure = function() {
+	Main.getIO().writeln("Initializing");
+	var empty = new Concept("empty");
+	var blue = new Concept("blue");
+	var green = new Concept("green");
+	var red = new Concept("red");
+	var orange = new Concept("orange");
+	var purple = new Concept("purple");
+	var mono = new Concept("mono");
+	var poly = new Concept("poly");
+	var all = new Concept("all");
+	Main.getIO().writeln("Created concepts. Inserting hierarchy...");
+	empty.addParents([blue,green,red,orange,purple]);
+	mono.addChildren([blue,green,red]);
+	poly.addChildren([orange,purple]);
+	all.addChildren([mono,poly]);
+	Main.getIO().writeln("Hierarchy created. Creating version space...");
+	var vs = new VersionSpace(all,empty);
+	Main.getIO().writeln("Starting...");
+	vs.print();
+	Main.getIO().writeln("Adding red...");
+	vs.add(red);
+	vs.print();
+	Main.getIO().writeln("Substracting purple...");
+	vs.substract(purple);
+	vs.print();
+	Main.getIO().writeln("Adding blue...");
+	vs.add(blue);
+	vs.print();
+}
+Main.dummyStructure2 = function() {
+	var emptyTijd = new Concept("emptyTijd");
+	var voormiddag = new Concept("voormiddag");
+	var namiddag = new Concept("namiddag");
+	var avond = new Concept("avond");
+	var nacht = new Concept("nacht");
+	var empty = new Concept("empty");
+	var blue = new Concept("blue");
+	var green = new Concept("green");
+	var red = new Concept("red");
+	var orange = new Concept("orange");
+	var purple = new Concept("purple");
+	var mono = new Concept("mono");
+	var poly = new Concept("poly");
+	var all = new Concept("all");
+}
+Main.start_java = function() {
+}
+Main.start_cpp = function() {
+}
+Main.start_js = function() {
+	Main._IO = new JavascriptIO();
+	Processor.moo();
+	ExtendedConcept.moo();
+}
 Main.main = function() {
+	Main._IO = new JavascriptIO();
 	Processor.moo();
 	ExtendedConcept.moo();
 }
 Main.prototype = {
-	dummyStructure2: function() {
-		var emptyTijd = new Concept("emptyTijd");
-		var voormiddag = new Concept("voormiddag");
-		var namiddag = new Concept("namiddag");
-		var avond = new Concept("avond");
-		var nacht = new Concept("nacht");
-		var empty = new Concept("empty");
-		var blue = new Concept("blue");
-		var green = new Concept("green");
-		var red = new Concept("red");
-		var orange = new Concept("orange");
-		var purple = new Concept("purple");
-		var mono = new Concept("mono");
-		var poly = new Concept("poly");
-		var all = new Concept("all");
-	}
-	,dummyStructure: function() {
-		Main.getIO().writeln("Initializing");
-		var empty = new Concept("empty");
-		var blue = new Concept("blue");
-		var green = new Concept("green");
-		var red = new Concept("red");
-		var orange = new Concept("orange");
-		var purple = new Concept("purple");
-		var mono = new Concept("mono");
-		var poly = new Concept("poly");
-		var all = new Concept("all");
-		Main.getIO().writeln("Created concepts. Inserting hierarchy...");
-		empty.addParents([blue,green,red,orange,purple]);
-		mono.addChildren([blue,green,red]);
-		poly.addChildren([orange,purple]);
-		all.addChildren([mono,poly]);
-		Main.getIO().writeln("Hierarchy created. Creating version space...");
-		var vs = new VersionSpace(all,empty);
-		Main.getIO().writeln("Starting...");
-		vs.print();
-		Main.getIO().writeln("Adding red...");
-		vs.add(red);
-		vs.print();
-		Main.getIO().writeln("Substracting purple...");
-		vs.substract(purple);
-		vs.print();
-		Main.getIO().writeln("Adding blue...");
-		vs.add(blue);
-		vs.print();
-	}
-	,__class__: Main
+	__class__: Main
 }
 var Mode = { __ename__ : true, __constructs__ : ["REGULAR","EXTENDED"] }
 Mode.REGULAR = ["REGULAR",0];
@@ -816,7 +807,10 @@ Mode.EXTENDED.__enum__ = Mode;
 var Processor = function() {
 	try {
 		var time = haxe.Timer.stamp();
-		this.processFormInputs();
+		Main.getIO().debugln("Reading input...");
+		this.structureInput = Main.getIO().getStructure();
+		this.sampleInput = Main.getIO().getSamples();
+		this._process();
 		time = haxe.Timer.stamp() - time;
 		time *= 1000;
 		var timeStr = Math.round(time) + "";
@@ -835,7 +829,7 @@ Processor.moo = function() {
 Processor.process = function() {
 	var Io = js.Boot.__cast(Main.getIO() , JavascriptIO);
 	Io.clear();
-	new Processor();
+	Processor.instance = new Processor();
 }
 Processor.prototype = {
 	processExtendedConcepts: function() {
@@ -845,6 +839,7 @@ Processor.prototype = {
 		var extremes = ExtendedConcept.searchExtremes(firstSample);
 		Main.getIO().debugln("Extremes found: " + Std.string(extremes));
 		var vs = new VersionSpace(extremes.all,extremes.empty);
+		this.vs = vs;
 		vs.print();
 		var $it0 = $iterator(extendedSamples)();
 		while( $it0.hasNext() ) {
@@ -889,10 +884,7 @@ Processor.prototype = {
 			}
 		}
 	}
-	,processFormInputs: function() {
-		Main.getIO().debugln("Reading input...");
-		this.structureInput = Main.getIO().getStructure();
-		this.sampleInput = Main.getIO().getSamples();
+	,_process: function() {
 		Main.getIO().debugln("   Structure input: " + this.structureInput);
 		Main.getIO().debugln("   Sample input: " + this.sampleInput);
 		Main.getIO().debugln("Processing input...");
@@ -982,6 +974,25 @@ Std.parseFloat = function(x) {
 Std.random = function(x) {
 	return Math.floor(Math.random() * x);
 }
+var StringBuf = function() {
+	this.b = "";
+};
+StringBuf.__name__ = true;
+StringBuf.prototype = {
+	toString: function() {
+		return this.b;
+	}
+	,addSub: function(s,pos,len) {
+		this.b += HxOverrides.substr(s,pos,len);
+	}
+	,addChar: function(c) {
+		this.b += String.fromCharCode(c);
+	}
+	,add: function(x) {
+		this.b += Std.string(x);
+	}
+	,__class__: StringBuf
+}
 var StringTools = function() { }
 StringTools.__name__ = true;
 StringTools.urlEncode = function(s) {
@@ -1068,6 +1079,16 @@ StringTools.fastCodeAt = function(s,index) {
 StringTools.isEOF = function(c) {
 	return c != c;
 }
+var ContainmentStatus = { __ename__ : true, __constructs__ : ["Yes","No","Maybe"] }
+ContainmentStatus.Yes = ["Yes",0];
+ContainmentStatus.Yes.toString = $estr;
+ContainmentStatus.Yes.__enum__ = ContainmentStatus;
+ContainmentStatus.No = ["No",1];
+ContainmentStatus.No.toString = $estr;
+ContainmentStatus.No.__enum__ = ContainmentStatus;
+ContainmentStatus.Maybe = ["Maybe",2];
+ContainmentStatus.Maybe.toString = $estr;
+ContainmentStatus.Maybe.__enum__ = ContainmentStatus;
 var VersionSpace = function(mostGeneral,mostSpecific) {
 	this.G = new List();
 	this.G.add(mostGeneral);
@@ -1156,6 +1177,24 @@ VersionSpace.prototype = {
 		}
 		this.S = newS;
 		this.sanitizeVersionSpace();
+	}
+	,contains: function(stm) {
+		var $it0 = this.S.iterator();
+		while( $it0.hasNext() ) {
+			var s = $it0.next();
+			if(s.contains(stm)) return ContainmentStatus.Yes;
+		}
+		var canContain = false;
+		var $it1 = this.G.iterator();
+		while( $it1.hasNext() ) {
+			var s = $it1.next();
+			if(s.contains(stm)) {
+				canContain = true;
+				break;
+			}
+		}
+		if(!canContain) return ContainmentStatus.No;
+		return ContainmentStatus.Maybe;
 	}
 	,__class__: VersionSpace
 }
@@ -1397,7 +1436,4 @@ if(typeof window != "undefined") {
 }
 JavascriptIO.STRUCTURE_ID = "structure";
 JavascriptIO.SAMPLE_ID = "sample";
-Main._IO = new JavascriptIO();
-Processor.STRUCTURE_ID = "structure";
-Processor.SAMPLE_ID = "sample";
 Main.main();

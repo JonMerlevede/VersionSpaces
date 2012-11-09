@@ -1,7 +1,16 @@
 package ;
 
+
+enum ContainmentStatus {
+	Yes;
+	No;
+	Maybe;
+}
+
 /**
- * ...
+ * Class representing a version space.
+ * A version space 
+ * 
  * @author Jonathan Merlevede
  */
 class VersionSpace<T : Statement<T>> {
@@ -29,6 +38,31 @@ class VersionSpace<T : Statement<T>> {
 		if (empty == null)
 			throw "Invalid structure! No empty.";
 		return { all : all, empty : empty };
+	}
+	
+	/**
+	 * Returns whether the given statement is contained by the version space.
+	 * 
+	 * TODO make this useable by adding interface to frontend
+	 * 
+	 * @param	stm
+	 * @return
+	 */
+	public function contains(stm : T) : ContainmentStatus {
+		for (s in S) {
+			if (s.contains(stm))
+				return ContainmentStatus.Yes;
+		}
+		var canContain = false;
+		for (s in G) {
+			if (s.contains(stm)) {
+				canContain = true;
+				break;
+			}
+		}
+		if (!canContain)
+			return ContainmentStatus.No;
+		return ContainmentStatus.Maybe;
 	}
 	
 	public function new (mostGeneral : T, mostSpecific : T) {
@@ -76,17 +110,6 @@ class VersionSpace<T : Statement<T>> {
 				if (!general.contains(specific))
 					continue;
 				newG.add(general);
-//				if (specific.contains(general) && specific != general)
-//					continue;
-//				newG.add(general);
-//				if (general.contains(specific)) {
-//					newG.add(general);
-//					continue;
-//				}
-//				if (!specific.contains(general)) {
-//					newG.add(general);
-//					continue;
-//				}
 			}
 		}
 		G = StatementHelper.sanitiseSpecialisations(newG);

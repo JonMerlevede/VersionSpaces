@@ -1,10 +1,10 @@
 package ;
 
 /**
- * ...
+ * IO processor to be used with the Javascript target.
+ * 
  * @author Jonathan Merlevede
  */
-
 class JavascriptIO implements IIO
 {
 	private var output_id : String;

@@ -1,3 +1,9 @@
+
+/**
+ * Represents a statement. Examples of statements are Concepts and ExtendedConcepts.
+ * 
+ * @author Jonathan Merlevede
+ */
 // TODO T needs to implement Statement. Is it possible to formalise this?
 interface Statement<T> {
 	function contains(stm : T) : Bool;

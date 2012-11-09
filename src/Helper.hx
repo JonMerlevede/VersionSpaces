@@ -1,7 +1,8 @@
 package ;
 
 /**
- * ...
+ * Utility class that contains some helper functions not specific to any application domain.
+ * 
  * @author Jonathan Merlevede
  */
 

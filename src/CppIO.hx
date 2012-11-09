@@ -5,10 +5,10 @@ import haxe.io.Input;
 import sys.io.File;
 
 /**
- * ...
+ * IO processor to be used with the C++ target.
+ * 
  * @author Jonathan Merlevede
  */
-
 class CppIO implements IIO
 {
 	private var _writeToFile : Bool;
@@ -21,7 +21,6 @@ class CppIO implements IIO
 	public function new() {
 		_writeToFile = false;
 	}
-	
 	
 	
 	private function getWriteToFile() : Bool {
