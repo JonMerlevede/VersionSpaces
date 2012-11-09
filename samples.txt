@@ -1,0 +1,5 @@
+-[Fi.HH.a16.Ha]
++[SD.NW.a18.Ne]
+-[Da.HR.a32.Ug]
++[MO.HR.a25.Ha]
+-[SD.Ja.a29.Ug]

@@ -745,7 +745,8 @@ StringBuf.prototype = {
 	}
 	,__class__: StringBuf
 }
-var Main = function() { }
+var Main = function() {
+};
 Main.__name__ = true;
 Main.getIO = function() {
 	return Main._IO;
@@ -753,6 +754,8 @@ Main.getIO = function() {
 Main.main = function() {
 	Processor.moo();
 	ExtendedConcept.moo();
+	var a = new Main();
+	a.dummyStructure();
 }
 Main.prototype = {
 	dummyStructure2: function() {
@@ -1090,7 +1093,9 @@ VersionSpace.searchExtremes = function(statements) {
 }
 VersionSpace.prototype = {
 	print: function(printf) {
-		printf("The Version Space is now defined by: <div class=\"vs\">G: " + Std.string(this.G) + "<br />   S: " + Std.string(this.S) + "</div>");
+		printf("The Version Space is now defined by:");
+		printf("   G: " + Std.string(this.G));
+		printf("   S: " + Std.string(this.S));
 	}
 	,ms: function(hc) {
 		var rv = "{";

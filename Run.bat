@@ -1,3 +1,3 @@
 @echo off
-bin\Main-debug.exe
+bin\cpp\Main.exe structure.txt samples.txt
 pause

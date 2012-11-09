@@ -19,10 +19,7 @@ class Processor {
 			time *= 1000;
 			var timeStr : String = Math.round(time) + "";
 			Main.IO.writeln("Computation took " + timeStr + "ms.");
-			#if js
-				var Io : JavascriptIO = cast(Main.IO, JavascriptIO);
-				Io.flush();
-			#end
+			Main.IO.flush();
 		} catch (msg : String) {
 			Main.IO.errorln(msg);
 		}
@@ -61,11 +58,11 @@ class Processor {
 		for (sample in DotConceptParser.processInputRegular(sampleInput, concepts)) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
-					Main.IO.writeln('Substracting concept <span class="concept">' + sample.concept + '</span>');
+					Main.IO.writeln('Substracting concept ' + sample.concept);
 					vs.substract(sample.concept);
 					vs.print(Main.IO.writeln);
 				case Sample.Type.PositiveSample:
-					Main.IO.writeln('Adding concept <span class="concept">' + sample.concept + '</span>');
+					Main.IO.writeln('Adding concept ' + sample.concept);
 					vs.add(sample.concept);
 					vs.print(Main.IO.writeln);
 			}
@@ -83,11 +80,11 @@ class Processor {
 		for (sample in extendedSamples) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
-					Main.IO.writeln('Substracting concept <span class="concept">' + sample.concept + '</span>');
+					Main.IO.writeln('Substracting concept ' + sample.concept);
 					vs.substract(sample.concept);
 					vs.print(Main.IO.writeln);
 				case Sample.Type.PositiveSample:
-					Main.IO.writeln('Adding concept <span class="concept">' + sample.concept + '</span>');
+					Main.IO.writeln('Adding concept ' + sample.concept);
 					vs.add(sample.concept);
 					vs.print(Main.IO.writeln);
 			}

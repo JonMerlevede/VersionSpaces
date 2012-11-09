@@ -1,4 +1,5 @@
 package ;
+import cpp.Lib;
 
 /**
  * ...
@@ -15,7 +16,9 @@ class Main {
 	public static function getIO() : IIO {
 		return _IO;
 	}
-	
+	private function new() {
+		
+	}
 	
 	private function dummyStructure() {
 		Main.IO.writeln("Initializing");
@@ -66,8 +69,28 @@ class Main {
 	}
 	
 	static function main() {
-		Processor.moo();
-		ExtendedConcept.moo();
-		// do nothing; wait for event to trigger
+		#if js
+			Processor.moo();
+			ExtendedConcept.moo();
+			// do nothing; wait for event to trigger
+		#elseif cpp
+			var a = new Main();
+			if (Sys.args().length < 2)
+				a.dummyStructure();
+			else {
+				//IO.warnln("Arguments: " + Sys.args());
+				_IO.structurePath = Sys.args()[0];
+				_IO.samplePath = Sys.args()[1];
+				if (Sys.args().length > 2) {
+					_IO.writeToFile = true;
+					_IO.outputPath = Sys.args()[2];
+					Lib.println("Writing to file " + _IO.outputPath);
+				}
+				IO.writeln("Structure path: " + _IO.structurePath);
+				IO.writeln("Sample path: " + _IO.samplePath);
+				Processor.process();
+				Lib.println("Done!");
+			}
+		#end
 	}
 }

@@ -1,0 +1,27 @@
+Structure path: structure.txt
+Sample path: samples.txt
+Extended mode detected.
+The Version Space is now defined by:
+   G: {[allHobby.allMusic.allAge.allPhoto]}
+   S: {[emptyHobby.emptyMusic.emptyAge.emptyPhoto]}
+Substracting concept [Fi.HH.a16.Ha]
+The Version Space is now defined by:
+   G: {[Co.allMusic.allAge.allPhoto], [Re.allMusic.allAge.allPhoto], [allHobby.Us.allAge.allPhoto], [allHobby.Ja.allAge.allPhoto], [allHobby.allMusic.a0.allPhoto], [allHobby.allMusic.a1.allPhoto], [allHobby.allMusic.a2.allPhoto], [allHobby.allMusic.a3.allPhoto], [allHobby.allMusic.a4.allPhoto], [allHobby.allMusic.a5.allPhoto], [allHobby.allMusic.a6.allPhoto], [allHobby.allMusic.a7.allPhoto], [allHobby.allMusic.a8.allPhoto], [allHobby.allMusic.a9.allPhoto], [allHobby.allMusic.a10.allPhoto], [allHobby.allMusic.a11.allPhoto], [allHobby.allMusic.a12.allPhoto], [allHobby.allMusic.a13.allPhoto], [allHobby.allMusic.a14.allPhoto], [allHobby.allMusic.a15.allPhoto], [allHobby.allMusic.Yo.allPhoto], [allHobby.allMusic.Ol.allPhoto], [allHobby.allMusic.allAge.Ne], [allHobby.allMusic.allAge.Ug]}
+   S: {[emptyHobby.emptyMusic.emptyAge.emptyPhoto]}
+Adding concept [SD.NW.a18.Ne]
+The Version Space is now defined by:
+   G: {[Co.allMusic.allAge.allPhoto], [allHobby.Us.allAge.allPhoto], [allHobby.allMusic.Yo.allPhoto], [allHobby.allMusic.allAge.Ne]}
+   S: {[SD.NW.a18.Ne]}
+Substracting concept [Da.HR.a32.Ug]
+The Version Space is now defined by:
+   G: {[SC.allMusic.allAge.allPhoto], [allHobby.NW.allAge.allPhoto], [allHobby.allMusic.Yo.allPhoto], [allHobby.allMusic.allAge.Ne]}
+   S: {[SD.NW.a18.Ne]}
+Adding concept [MO.HR.a25.Ha]
+The Version Space is now defined by:
+   G: {[SC.allMusic.allAge.allPhoto], [allHobby.allMusic.Yo.allPhoto]}
+   S: {[SC.Us.Yo.allPhoto]}
+Substracting concept [SD.Ja.a29.Ug]
+The Version Space is now defined by:
+   G: {[SC.Us.allAge.allPhoto], [allHobby.Us.Yo.allPhoto]}
+   S: {[SC.Us.Yo.allPhoto]}
+Computation took 74ms.

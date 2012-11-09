@@ -1,6 +1,7 @@
 .settings
-bin/*
-!bin/index.html
-!bin/version-spaces.js
+bin/js/*
+bin/cpp/*
+!bin/js/index.html
+!bin/js/version-spaces.js
 .paths
 .project

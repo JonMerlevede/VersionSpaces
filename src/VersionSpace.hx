@@ -105,6 +105,8 @@ class VersionSpace<T : Statement<T>> {
 	}
 	
 	public function print(printf : String->Void) {
-		printf('The Version Space is now defined by: <div class="vs">G: ' + G + "<br />   S: " + S + '</div>');
+		printf('The Version Space is now defined by:');
+		printf('   G: ' + G);
+		printf("   S: " + S);
 	}
 }

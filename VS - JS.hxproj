@@ -2,9 +2,9 @@
 <project version="2">
   <!-- Output SWF options -->
   <output>
-    <movie outputType="Application" />
+    <movie outputType="CustomBuild" />
     <movie input="" />
-    <movie path="bin\version-spaces.js" />
+    <movie path="bin\js\version-spaces.js" />
     <movie fps="0" />
     <movie width="0" />
     <movie height="0" />
@@ -38,14 +38,14 @@
     <!-- example: <hidden path="..." /> -->
   </hiddenPaths>
   <!-- Executed before build -->
-  <preBuildCommand />
+  <preBuildCommand>$(CompilerPath)\haxe.exe $(ProjectDir)\js.hxml</preBuildCommand>
   <!-- Executed after build -->
   <postBuildCommand alwaysRun="False" />
   <!-- Other project options -->
   <options>
     <option showHiddenPaths="False" />
     <option testMovie="OpenDocument" />
-    <option testMovieCommand="bin/index.html" />
+    <option testMovieCommand="bin/js/index.html" />
   </options>
   <!-- Plugin storage -->
   <storage />

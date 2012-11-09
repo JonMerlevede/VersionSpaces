@@ -1,5 +1,8 @@
 package ;
+import cpp.io.FileInput;
 import cpp.Lib;
+import haxe.io.Input;
+import sys.io.File;
 
 /**
  * ...
@@ -8,15 +11,41 @@ import cpp.Lib;
 
 class CppIO implements IIO
 {
+	private var _writeToFile : Bool;
+	public var sb : StringBuf;
+	public var writeToFile (getWriteToFile, setWriteToFile) : Bool;
+	public var structurePath (default, default) : String;
+	public var samplePath (default, default) : String;
+	public var outputPath (default, default) : String;
+	
 	public function new() {
-		
+		_writeToFile = false;
+	}
+	
+	
+	
+	private function getWriteToFile() : Bool {
+		return _writeToFile;
+	}
+	private function setWriteToFile(val : Bool) : Bool {
+		_writeToFile = val;
+		if (val)
+			sb = new StringBuf();
+		return true;
 	}
 	
 	public function writeln(m : String) {
-		Lib.println(m);
+		if (writeToFile) {
+			sb.add(m);
+			sb.add("\n");
+		} else
+			Lib.println(m);
 	}
 	public function write(m : String) {
-		Lib.print(m);
+		if (writeToFile)
+			sb.add(m);
+		else 
+			Lib.print(m);
 	}
 	public function debug(m : String) {
 		//write(m);
@@ -38,11 +67,14 @@ class CppIO implements IIO
 	}
 	
 	public function getStructure() : String {
-		// TODO
-		return "";
+		return File.getContent(structurePath);
 	}
 	public function getSamples() : String {
-		// TODO
-		return "";
+		return File.getContent(samplePath);
+	}
+	
+	public function flush() {
+		if (writeToFile)
+			File.saveContent(outputPath, sb.toString());
 	}
 }

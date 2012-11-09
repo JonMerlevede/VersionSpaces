@@ -1,0 +1,5 @@
+-cp src
+-cpp bin\cpp
+-D HXCPP_M64
+-D NO_PRECOMPILED_HEADERS
+-main Main

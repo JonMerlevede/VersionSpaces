@@ -11,4 +11,5 @@ interface IIO {
 	public function warnln(m : String) : Void;
 	public function getStructure() : String;
 	public function getSamples() : String;
+	public function flush() : Void;
 }
