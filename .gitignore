@@ -1,8 +1,10 @@
 .settings
 bin/js/*
 bin/cpp/*
+bin/java/*
 !bin/js/index.html
 !bin/js/version-spaces.js
 !bin/cpp/EMPTY.txt
+!bin/java/EMPTY.txt
 .paths
 .project

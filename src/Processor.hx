@@ -155,7 +155,7 @@ class Processor {
 					#if js
 						Main.IO.writeln('</span>');
 					#else
-						Main.IO.writeln();
+						Main.IO.writeln("");
 					#end
 					vs.substract(sample.concept);
 					vs.print();

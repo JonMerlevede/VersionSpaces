@@ -122,7 +122,8 @@ class Main {
 		// TODO investigate if this does not get burdonsome with larger multi-target software.
 		#if cpp
 		//var a = new Main();
-		Main._IO = new CppIO();
+		var _IO = new CppIO();
+		Main._IO = _IO;
 		if (Sys.args().length < 2)
 			Main.dummyStructure();
 		else {
