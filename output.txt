@@ -24,4 +24,4 @@ Substracting concept [SD.Ja.a29.Ug]
 The Version Space is now defined by:
    G: {[SC.Us.allAge.allPhoto], [allHobby.Us.Yo.allPhoto]}
    S: {[SC.Us.Yo.allPhoto]}
-Computation took 74ms.
+Computation took 75ms.
