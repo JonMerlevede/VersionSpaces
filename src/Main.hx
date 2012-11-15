@@ -1,6 +1,11 @@
 package ;
 #if cpp
 	import cpp.Lib;
+	
+#end
+
+#if java
+	import java.lang.System;
 #end
 
 /**
@@ -91,9 +96,6 @@ class Main {
 		var all = new Concept("all");
 	}
 	
-	static function start_java() {
-	}
-	
 	/**
 	 * Starting point in the case of the C++ target.
 	 * 
@@ -160,6 +162,26 @@ class Main {
 		Processor.moo();
 		ExtendedConcept.moo();
 		// do nothing; wait for event to trigger
+		#end
+	}
+	
+	/**
+	 * TODO
+	 */
+	private static inline function start_java() {
+		
+		#if java
+		var _IO = new JavaIO();
+		Main._IO = _IO;
+		if (Sys.args().length < 2)
+			Main.dummyStructure();
+		else {
+			_IO.structurePath = Sys.args()[0];
+			_IO.samplePath = Sys.args()[1];
+			IO.writeln("Structure path: " + _IO.structurePath);
+			IO.writeln("Sample path: " + _IO.samplePath);
+//			Processor.process();
+		}
 		#end
 	}
 	
