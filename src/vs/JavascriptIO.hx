@@ -1,4 +1,4 @@
-package ;
+package vs;
 
 /**
  * IO processor to be used with the Javascript target.

@@ -1,4 +1,4 @@
-package ;
+package vs;
 
 /**
  * Class representing a concept.

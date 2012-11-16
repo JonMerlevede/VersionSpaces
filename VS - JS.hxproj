@@ -38,7 +38,7 @@
     <!-- example: <hidden path="..." /> -->
   </hiddenPaths>
   <!-- Executed before build -->
-  <preBuildCommand>$(CompilerPath)\haxe.exe $(ProjectDir)\js.hxml</preBuildCommand>
+  <preBuildCommand>"$(CompilerPath)\haxe.exe" "$(ProjectDir)\js.hxml"</preBuildCommand>
   <!-- Executed after build -->
   <postBuildCommand alwaysRun="False" />
   <!-- Other project options -->

@@ -1,3 +1,5 @@
+package vs;
+
 /**
  * Type that represents the two most extreme concepts in a Statement hierarchy.
  * 'All' is a statement that contains all other statements in the hierarchy.

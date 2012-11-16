@@ -1,3 +1,5 @@
+package vs;
+
 /**
  * Helper class that contains helper functions
  * that are probably usefull for all classes implementing Statement.

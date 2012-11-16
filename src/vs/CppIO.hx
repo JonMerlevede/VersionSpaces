@@ -1,4 +1,5 @@
-package ;
+package vs;
+
 import cpp.io.FileInput;
 import cpp.Lib;
 import haxe.io.Input;

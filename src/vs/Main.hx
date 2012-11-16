@@ -1,9 +1,8 @@
-package ;
+package vs;
+
 #if cpp
 	import cpp.Lib;
-	
 #end
-
 #if java
 	import java.lang.System;
 #end
@@ -156,7 +155,6 @@ class Main {
 	 * called by pressing the "Derive" button in the application's webinterface.
 	 */
 	private static inline function start_js() {
-		
 		#if js
 		Main._IO = new JavascriptIO();
 		Processor.moo();
@@ -169,7 +167,6 @@ class Main {
 	 * TODO
 	 */
 	private static inline function start_java() {
-		
 		#if java
 		var _IO = new JavaIO();
 		Main._IO = _IO;
@@ -180,7 +177,8 @@ class Main {
 			_IO.samplePath = Sys.args()[1];
 			IO.writeln("Structure path: " + _IO.structurePath);
 			IO.writeln("Sample path: " + _IO.samplePath);
-//			Processor.process();
+			Processor.process();
+			IO.writeln("Done!");
 		}
 		#end
 	}

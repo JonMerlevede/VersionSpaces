@@ -1,4 +1,4 @@
-package ;
+package vs;
 
 /**
  * Utility class that can process concept and structure strings.

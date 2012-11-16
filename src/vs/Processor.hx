@@ -1,4 +1,4 @@
-package ;
+package vs;
 
 /**
  * Enum containing the different procesing modes of this processor.
@@ -33,7 +33,7 @@ class Processor {
 	private var concepts : Hash<Concept>;
 	private var structureInput : String;
 	private var sampleInput : String;
-	private var vs : VersionSpace<Dynamic>;
+	private var versionSpace : VersionSpace<Dynamic>;
 	
 	/**
 	 * Creates a new Version Space processor.
@@ -107,17 +107,17 @@ class Processor {
 		var extremes : Extremes<Concept> = Concept.searchExtremes(firstConcept);
 		Main.IO.debugln("Extremes found: " + extremes);
 		var vs : VersionSpace<Concept> = new VersionSpace(extremes.all, extremes.empty);
-		vs.print();
+		versionSpace.print();
 		for (sample in DotConceptParser.processInputRegular(sampleInput, concepts)) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
 					Main.IO.writeln('Substracting concept ' + sample.concept);
-					vs.substract(sample.concept);
-					vs.print();
+					versionSpace.substract(sample.concept);
+					versionSpace.print();
 				case Sample.Type.PositiveSample:
 					Main.IO.writeln('Adding concept ' + sample.concept);
-					vs.add(sample.concept);
-					vs.print();
+					versionSpace.add(sample.concept);
+					versionSpace.print();
 			}
 		}
 	}
@@ -141,9 +141,9 @@ class Processor {
 		var firstSample = extendedSamples.iterator().next().concept;
 		var extremes : Extremes<EC> = EC.searchExtremes(firstSample);
 		Main.IO.debugln("Extremes found: " + extremes);
-		var vs : VersionSpace<EC> = new VersionSpace(extremes.all, extremes.empty);
-		this.vs = vs;
-		vs.print();
+		var _vs : VersionSpace<EC> = new VersionSpace(extremes.all, extremes.empty);
+		this.versionSpace = _vs;
+		versionSpace.print();
 		for (sample in extendedSamples) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
@@ -157,12 +157,12 @@ class Processor {
 					#else
 						Main.IO.writeln("");
 					#end
-					vs.substract(sample.concept);
-					vs.print();
+					versionSpace.substract(sample.concept);
+					versionSpace.print();
 				case Sample.Type.PositiveSample:
 					Main.IO.writeln('Adding concept ' + sample.concept);
-					vs.add(sample.concept);
-					vs.print();
+					versionSpace.add(sample.concept);
+					versionSpace.print();
 			}
 		}
 	}

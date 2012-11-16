@@ -1,3 +1,4 @@
+package vs;
 
 /**
  * Represents a statement. Examples of statements are Concepts and ExtendedConcepts.

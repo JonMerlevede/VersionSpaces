@@ -1,4 +1,4 @@
-package ;
+package vs;
 
 typedef PositionedConcept = {
 	var position : Int;

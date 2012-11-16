@@ -1,6 +1,7 @@
-package ;
+package vs;
 
 import java.io.File;
+//import sys.io.File;
 import java.io.RandomAccessFile;
 import java.lang.System;
 /**
@@ -52,26 +53,29 @@ class JavaIO implements IIO
 	}
 	
 	public function getStructure() : String {
+		//return File.getContent(structurePath);
 		return readFile(structurePath);
 	}
 	
 	public function getSamples() : String {
+		//return File.getContent(samplePath);
 		return readFile(samplePath);
 	}
 	
 	private function readFile(pathName: String) : String {
 		try {
-		var a: File = new File(pathName);
-		var b: RandomAccessFile = new RandomAccessFile(a, "r");
-	
-		var strLine: String;
-		var result: String = "";
+			var a: File = new File(pathName);
+			var b: RandomAccessFile = new RandomAccessFile(a, "r");
 		
-		while ((strLine = b.readLine()) != null)   {
-			result = result + strLine;
-		}
-		
-		return result;
+			var strLine: String;
+			var result = new StringBuf();
+			//var result: String = "";
+			
+			while ((strLine = b.readLine()) != null)   {
+				result.add(strLine + "\n");
+			}
+			
+			return result.toString();
 		}
 		catch (e : Dynamic) {
 			return "";
