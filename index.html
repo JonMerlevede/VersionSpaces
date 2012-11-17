@@ -1,0 +1,239 @@
+<html>
+<head><title>Version Spaces Processor</title></head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" language=
+"JavaScript"></script>
+<script src="version-spaces.js"></script>
+<style>
+	body {
+		font-family:Arial,Verdana,sans-serif;
+		max-width:60em;
+	}
+	td:first-child {
+		width:12em;
+	}
+	table {
+		width:60em
+	}
+	
+	textarea {
+		font-family:"DejaVu Sans Mono",monospace;
+		font-size:0.9em;
+		width:54.3em; /*60=48/0.8*/
+		max-width:60em;
+		height: 100px;
+		border:1px solid black;
+		padding:4px;
+	}
+	textarea:focus {
+		background-color:#FFFFEF;
+		border:3px solid black;
+		padding:2px;
+	}
+	input[type=button] {
+		border:1px solid black;
+		padding:0.25em;
+		margin:0.25em;
+		font-size:1em;
+		width:19em;
+	}
+	input[type=button]:focus, input[type=button]:hover {
+		border:3px solid black;
+		padding:2px;
+	}
+	
+	textarea#structure {
+		height: 200px;
+	}
+	.debug {
+		color:#BBBBBB;
+	}
+	.concept {
+		font-weight: bold;
+	}
+	.error {
+		font-weight: bold;
+		color: red;
+	}
+	#derive, #question {
+		width:29em;
+		font-weight:bold;
+	}
+	div.vs {
+		display:block;
+		margin-left:40px;
+	}
+</style>
+<script>
+	function regular() {
+		document.getElementById('structure').value = (
+			"empty -> blue, green, red\n"
+			+"empty -> orange\n"
+			+"empty -> purple\n"
+			+"blue -> mono\n"
+			+"green -> mono\n"
+			+"red -> mono\n"
+			+"orange -> poly\n"
+			+"purple -> poly\n"
+			+"mono -> all\n"
+			+"poly -> all");
+		document.getElementById('sample').value = (
+			"+red\n"
+			+"-purple\n"
+			+"+blue");
+		document.getElementById('questions').value = (
+			 "red\n"
+			+"purple\n"
+			+"blue");
+	}
+	function extended() {
+		document.getElementById('structure').value = (
+			"emptyvalue -> one,seven,eight,nine,ten,J,Q,K\n"
+			+"one -> ace\n"
+			+"seven -> number\n"
+			+"eight -> number\n"
+			+"nine -> number\n"
+			+"ten -> number\n"
+			+"J -> picture\n"
+			+"Q -> picture\n"
+			+"K -> picture\n"
+			+"ace -> allvalue\n"
+			+"number -> allvalue\n"
+			+"picture -> allvalue\n\n"
+			+"emptykind -> clubs,spades,diamonds,hearts\n"
+			+"clubs -> black\n"
+			+"spades -> black\n"
+			+"diamonds -> red\n"
+			+"hearts -> red\n"
+			+"black -> allkind\n"
+			+"red -> allkind");
+		document.getElementById('sample').value = (
+			"+[seven.diamonds]\n"
+			+"-[ace.clubs]\n"
+			+"-[Q.hearts]\n"
+			+"+[nine.hearts]\n"
+			+"-[eight.clubs]\n");
+		document.getElementById('questions').value = (
+			 "[seven.diamonds]\n"
+			+"[ace.clubs]\n"
+			+"[Q.hearts]\n"
+			+"[nine.hearts]\n"
+			+"[eight.clubs]\n");
+	}
+	function extended2() {
+		var structure = "emptyHobby -> MO,SD,Da,Fi,Re\n"
+			+"MO -> SC\n"
+			+"SD -> SC\n"
+			+"SC -> Co\n"
+			+"Da -> Co\n"
+			+"Fi -> Bo\n"
+			+"Re -> Bo\n"
+			+"Co -> allHobby\n"
+			+"Bo -> allHobby\n\n"
+			+"emptyMusic -> HR,NW,Ja,HH\n"
+			+"HR -> Us\n"
+			+"NW -> Us\n\n"
+			+"Ja -> NU\n"
+			+"HH -> NU\n"
+			+"Us -> allMusic\n"
+			+"NU -> allMusic\n\n"
+			+"emptyAge ->";
+		var i = 0;
+		while (i < 80) {
+			structure += "a" + i + ", ";
+			i++;
+		}
+		structure += "a80 \n"
+		i = 0
+		while (i <= 16) {
+			structure += "a" + i + " -> VY\n";
+			i++;
+		}
+		while (i <= 29) {
+			structure += "a" + i + " -> Yo\n";
+			i++;
+		}
+		while (i <= 80) {
+			structure += "a" + i + " -> Ol\n";
+			i++;
+		}
+		structure += "VY -> allAge\n"
+			+ "Yo -> allAge\n"
+			+ "Ol -> allAge\n\n"
+			+ "emptyPhoto -> Ha,Ne,Ug\n"
+			+ "Ha -> allPhoto\n"
+			+ "Ne -> allPhoto\n"
+			+ "Ug -> allPhoto";
+		document.getElementById('structure').value = structure;
+		
+		document.getElementById('sample').value = (
+			 "-[Fi.HH.a16.Ha]\n"
+			+"+[SD.NW.a18.Ne]\n"
+			+"-[Da.HR.a32.Ug]\n"
+			+"+[MO.HR.a25.Ha]\n"
+			+"-[SD.Ja.a29.Ug]");
+		document.getElementById('questions').value = (
+			 "[MO.HR.a32.Ha]\n"
+			+"[SD.HH.a18.Ne]\n"
+			+"[Da.NW.a22.Ug]\n"
+			+"[Fi.HH.a16.Ha]\n"
+			+"[SD.NW.a18.Ne]\n"
+			+"[Da.HR.a32.Ug]\n"
+			+"[MO.HR.a25.Ha]\n"
+			+"[SD.Ja.a29.Ug]");
+	}
+</script>
+<body onload="extended();">
+<h1>Version Spaces Processor</h1>
+<i>Created by Jonathan Merlevede<br />
+Last edited: 17/11/2012</i>
+<p>
+This is an implementation of the
+<a href="http://en.wikipedia.org/wiki/Version_space">Version Space</a>
+algorithm in Javascript made using <a href="http://haxe.org/">Haxe</a>
+for the <a href="http://onderwijsaanbod.kuleuven.be/syllabi/e/H04L5AE.htm">Comparative Programming Languages</a>
+course at the <a href="http://www.kuleuven.be/kuleuven/">University of Leuven</a> in Belgium.
+An explanation of this algorithm can be found <a href="http://people.cs.kuleuven.be/~danny.deschreye/AI_Leuven/">here</a> (<a href="http://www.cs.kuleuven.ac.be/~dannyd/AI_Chap7_Version.ppt">direct link</a>).
+A simplified version of the algorithm explained here is also presented in edition two of Artificial Intelligence: A Modern Approach by Russel and Norvig (and possibly other versions). You can find the source code for this program <a href="https://github.com/jmerlevede/VersionSpaces">here</a>. This source code can also be compiled to Java and C++.
+</p>
+<p>
+There are three predefined structure, sample and question sets. You can load them by clicking any of the three buttons below (Regular, Extended and Extended - difficult). These examples were taken from <a href="http://dtai.cs.kuleuven.be/education/ai/">this page</a> (<a href="http://dtai.cs.kuleuven.be/education/ai/Exercises/Session3/Solutions/solution.pdf">direct link</a>); if you want to understand how these results are derived, this page is also a good place to start.
+</p><p>
+You can easily insert your own structures, sample sets and questions by modifying the values in the text areas. The application will not necessarily give a meaningful error message when presented with incorrect usage like badly formatted input.
+</p><p>
+Note that there are two supported syntaxes. The "Regular" example makes use of the simplified synatax. The "Extended" and "Extended - difficult" examples make use of the "extended" syntax. When presented with the simplified syntax, the algorithm will work differently, resulting in faster output. The two syntaxes cannot be mixed. If your language consists of only a single concept tree, use the simple syntax. If your language consists of multiple concept trees, use the extended syntax.
+</p><p>
+<b>Pressing the Derive button starts the Version Space algorithm. After the Version Space is trained, you can ask questions by pressing the question button.</b>
+</p>
+<p>
+<form name="myForm">
+<input type="button" value="Regular" onclick="regular();" />
+<input type="button" value="Extended" onclick="extended();" />
+<input type="button" value="Extended - difficult" onclick="extended2();" />
+<table>
+<tr>
+	<td>Structure definition</td>
+	<td>
+		<textarea id="structure"></textarea>
+	</td>
+</tr><tr>
+	<td>Sample definition</td>
+	<td>
+		<textarea id="sample"></textarea>
+	</td>
+</tr><tr>
+	<td>Question concepts</td>
+	<td>
+		<textarea id="questions"></textarea>
+	</td>
+</tr><tr>
+	<td align="center" colspan="2">
+		<input type="button" value="Derive" id="derive" onclick="vs.core.Processor.process();" />
+		<input type="button" value="Question" id="question" onclick="vs.core.Processor.question();" />
+	</td>
+</tr>
+</table>
+<form>
+</p>
+<div id="output"></div>
+</body>
+</html>
