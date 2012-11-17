@@ -1,4 +1,4 @@
-package vs;
+package vs.core;
 
 /**
  * Type representing a sample.

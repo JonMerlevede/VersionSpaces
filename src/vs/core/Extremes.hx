@@ -1,4 +1,4 @@
-package vs;
+package vs.core;
 
 /**
  * Type that represents the two most extreme concepts in a Statement hierarchy.

@@ -1,4 +1,4 @@
-package vs;
+package vs.core;
 
 typedef PositionedConcept = {
 	var position : Int;
@@ -7,13 +7,19 @@ typedef PositionedConcept = {
 private typedef PC = PositionedConcept;
 
 /**
- * Class representing an extended concept.
- * An extended concept is a statement that consists of multiple concepts in separate concept trees.
+ * Class representing an extended version space concept.
+ *
+ *
+ * Extended version space concepts are version space statements that are composed of
+ * multiple version space concepts.
+ * It consists of multiple concepts. Each concept exists within its own concept tree.
  * An example:
 	 * [a,b,c,d]
-	 * where a,b,c and d are concepts from different concept trees, is a statement in an extended language
-	 * or an 'ExtendedConcept'.
- * 
+	 * where a,b,c and d are version space concepts, is a
+	 * statement in an extended language or an 'ExtendedConcept'.
+ * It is not required, but usual, for the different concepts within an extended concept
+ * to be from different concept trees.
+ *
  * @author Jonathan Merlevede
  */
 class ExtendedConcept implements Statement<ExtendedConcept> {
@@ -92,7 +98,6 @@ class ExtendedConcept implements Statement<ExtendedConcept> {
 		for (pConcept in stm.concepts)
 			t.concepts.set(pConcept.position,pConcept);
 		return t;
-//		return new ExtendedConcept(Helper.cloneHash(stm.concepts));
 	}
 	
 	public function generalise(stm : ExtendedConcept) : List<ExtendedConcept> {
@@ -123,9 +128,7 @@ class ExtendedConcept implements Statement<ExtendedConcept> {
 					generalisedExtendedConcepts.add(add);
 			}
 		});
-//		return generalisedExtendedConcepts;
 		return StatementHelper.sanitiseGeneralisations(generalisedExtendedConcepts);
-//		return generalisedExtendedConcepts.sanitiseGeneralisations();
 	}
 	
 	public function specialise(stm : ExtendedConcept) : List<ExtendedConcept> {

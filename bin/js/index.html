@@ -5,7 +5,7 @@
 <script src="version-spaces.js"></script>
 <style>
 	body {
-		font-family:"DejaVu Sans",Verdana,sans-serif;
+		font-family:Arial,Verdana,sans-serif;
 		max-width:60em;
 	}
 	td:first-child {
@@ -54,8 +54,8 @@
 		font-weight: bold;
 		color: red;
 	}
-	#derive {
-		width:59em;
+	#derive, #question {
+		width:29em;
 		font-weight:bold;
 	}
 	div.vs {
@@ -80,6 +80,10 @@
 			"+red\n"
 			+"-purple\n"
 			+"+blue");
+		document.getElementById('questions').value = (
+			 "red\n"
+			+"purple\n"
+			+"blue");
 	}
 	function extended() {
 		document.getElementById('structure').value = (
@@ -108,6 +112,12 @@
 			+"-[Q.hearts]\n"
 			+"+[nine.hearts]\n"
 			+"-[eight.clubs]\n");
+		document.getElementById('questions').value = (
+			 "[seven.diamonds]\n"
+			+"[ace.clubs]\n"
+			+"[Q.hearts]\n"
+			+"[nine.hearts]\n"
+			+"[eight.clubs]\n");
 	}
 	function extended2() {
 		var structure = "emptyHobby -> MO,SD,Da,Fi,Re\n"
@@ -161,31 +171,37 @@
 			+"-[Da.HR.a32.Ug]\n"
 			+"+[MO.HR.a25.Ha]\n"
 			+"-[SD.Ja.a29.Ug]");
+		document.getElementById('questions').value = (
+			 "[MO.HR.a32.Ha]\n"
+			+"[SD.HH.a18.Ne]\n"
+			+"[Da.NW.a22.Ug]\n"
+			+"[Fi.HH.a16.Ha]\n"
+			+"[SD.NW.a18.Ne]\n"
+			+"[Da.HR.a32.Ug]\n"
+			+"[MO.HR.a25.Ha]\n"
+			+"[SD.Ja.a29.Ug]");
 	}
 </script>
 <body onload="extended();">
 <h1>Version Spaces Processor</h1>
 <i>Created by Jonathan Merlevede<br />
-Last edited: 3/11/2012</i>
+Last edited: 17/11/2012</i>
 <p>
 This is an implementation of the
 <a href="http://en.wikipedia.org/wiki/Version_space">Version Space</a>
 algorithm in Javascript made using <a href="http://haxe.org/">Haxe</a>
 for the <a href="http://onderwijsaanbod.kuleuven.be/syllabi/e/H04L5AE.htm">Comparative Programming Languages</a>
 course at the <a href="http://www.kuleuven.be/kuleuven/">University of Leuven</a> in Belgium.
-An explanation of this algorithm in dutch can be found <a href="http://people.cs.kuleuven.be/~danny.deschreye/AI_Leuven/">here</a>.
+An explanation of this algorithm can be found <a href="http://people.cs.kuleuven.be/~danny.deschreye/AI_Leuven/">here</a> (<a href="http://www.cs.kuleuven.ac.be/~dannyd/AI_Chap7_Version.ppt">direct link</a>). A simplified version of the algorithm explained here is also presented in edition two of Artificial Intelligence: A Modern Approach by Russel and Norvig (and possibly other versions).
 </p>
 <p>
-There are three predefined structure and sample sets. They can be loaded by
-clicking any of the three buttons below (Regular, Extended and Extended - difficult).
-Pressing the Derive button starts the Version Space algorithm.
-These three examples were taken from
-<a href="http://dtai.cs.kuleuven.be/education/ai/">here</a>. An explanation
-on how to derive results for them yourself can also be found there.
+There are three predefined structure, sample and question sets. You can load them by clicking any of the three buttons below (Regular, Extended and Extended - difficult). These examples were taken from <a href="http://dtai.cs.kuleuven.be/education/ai/">this page</a> (<a href="http://dtai.cs.kuleuven.be/education/ai/Exercises/Session3/Solutions/solution.pdf">direct link</a>); if you want to understand how these results are derived, this page is also a good place to start.
 </p><p>
-You can easily insert your own structures and sample sets by modifying
-the values in the text areas. The application will not necessarily give a meaningful
-error message when presented with incorrectly formatted input.
+You can easily insert your own structures, sample sets and questions by modifying the values in the text areas. The application will not necessarily give a meaningful error message when presented with incorrect usage like badly formatted input.
+</p><p>
+Note that there are two supported syntaxes. The "Regular" example makes use of the simplified synatax. The "Extended" and "Extended - difficult" examples make use of the "extended" syntax. When presented with the simplified syntax, the algorithm will work differently, resulting in faster output. The two syntaxes cannot be mixed. If your language consists of only a single concept tree, use the simple syntax. If your language consists of multiple concept trees, use the extended syntax.
+</p><p>
+<b>Pressing the Derive button starts the Version Space algorithm. After the Version Space is trained, you can ask questions by pressing the question button.</b>
 </p>
 <p>
 <form name="myForm">
@@ -204,7 +220,15 @@ error message when presented with incorrectly formatted input.
 		<textarea id="sample"></textarea>
 	</td>
 </tr><tr>
-	<td colspan="2" align="center"><input type="button" value="Derive" id="derive" onclick="vs.Processor.process();" /></td>
+	<td>Question concepts</td>
+	<td>
+		<textarea id="questions"></textarea>
+	</td>
+</tr><tr>
+	<td align="center" colspan="2">
+		<input type="button" value="Derive" id="derive" onclick="vs.core.Processor.process();" />
+		<input type="button" value="Question" id="question" onclick="vs.core.Processor.question();" />
+	</td>
 </tr>
 </table>
 <form>

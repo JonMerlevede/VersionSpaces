@@ -1,12 +1,11 @@
-package vs;
+package vs.core;
 
 
 enum ContainmentStatus {
-	Yes;
-	No;
-	Maybe;
+    YES;
+    NO;
+    MAYBE;
 }
-
 /**
  * Class representing a version space.
  * A version space 
@@ -51,7 +50,7 @@ class VersionSpace<T : Statement<T>> {
 	public function contains(stm : T) : ContainmentStatus {
 		for (s in S) {
 			if (s.contains(stm))
-				return ContainmentStatus.Yes;
+				return ContainmentStatus.YES;
 		}
 		var canContain = false;
 		for (s in G) {
@@ -61,8 +60,8 @@ class VersionSpace<T : Statement<T>> {
 			}
 		}
 		if (!canContain)
-			return ContainmentStatus.No;
-		return ContainmentStatus.Maybe;
+			return ContainmentStatus.NO;
+		return ContainmentStatus.MAYBE;
 	}
 	
 	public function new (mostGeneral : T, mostSpecific : T) {
@@ -128,7 +127,7 @@ class VersionSpace<T : Statement<T>> {
 	}
 	
 	public function print() {
-		Main.IO.writeln('The Version Space is now defined by:');
+		Main.IO.writeln('The definition of the Version Space is:');
 		#if js
 			Main.IO.write('<div class="vs">');
 		#end

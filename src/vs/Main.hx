@@ -2,9 +2,14 @@ package vs;
 
 #if cpp
 	import cpp.Lib;
+	import vs.io.CppIo;
 #end
 #if java
 	import java.lang.System;
+	import vs.io.JavaIO;
+#end
+#if js
+    import vs.io.JavascriptIO;
 #end
 
 /**
@@ -15,6 +20,12 @@ package vs;
  * 
  * @author Jonathan Merlevede
  */
+
+import vs.core.VersionSpace;
+import vs.core.Concept;
+import vs.core.Processor;
+import vs.core.ExtendedConcept;
+import vs.io.IIO;
 
 class Main {
 	/**
@@ -159,6 +170,7 @@ class Main {
 		Main._IO = new JavascriptIO();
 		Processor.moo();
 		ExtendedConcept.moo();
+		Main.dummyStructure();
 		// do nothing; wait for event to trigger
 		#end
 	}

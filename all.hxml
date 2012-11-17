@@ -1,0 +1,7 @@
+-cp src
+-js bin\js\version-spaces.js
+-java bin\java
+-cpp bin\cpp
+-D HXCPP_M64
+-D NO_PRECOMPILED_HEADERS
+-main vs.Main

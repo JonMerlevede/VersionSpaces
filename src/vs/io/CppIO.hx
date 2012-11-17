@@ -1,4 +1,4 @@
-package vs;
+package vs.io;
 
 import cpp.io.FileInput;
 import cpp.Lib;

@@ -1,9 +1,12 @@
-package vs;
+package vs.core;
 
 /**
- * Enum containing the different procesing modes of this processor.
- * The processing mode used depends on the input structure and the structure of examples.
- * It is determined based on how examples look.
+ * Enum containing the different processing modes of this processor. Depending on the
+ * processing mode of the processor, words processed by the processor are Concepts
+ * or ExtendedConcepts.
+ *
+ * The processing mode used depends on the version space language structure, which
+ * is defined by the structure of examples and the given concept hierarchies.
  * 
  * A language with a single underlying concept tree has to be parsed in 'Regular' mode.
  * A sample (or 'word') from this language looks like this:
@@ -13,8 +16,20 @@ package vs;
  * A sample (or 'word') from this language looks like this:
 	 * +[a.b.c]
  * Where a, b and c are concepts from different concept trees.
- * 
+ *
+ * @see Statement
+ * @see ExtendedConcept
+ * @see Concept
+ *
  */
+import vs.parse.DotConceptParser;
+using StringTools;
+
+#if js
+    import vs.io.JavascriptIO;
+#end
+
+
 enum Mode {
 	REGULAR;
 	EXTENDED;
@@ -33,6 +48,7 @@ class Processor {
 	private var concepts : Hash<Concept>;
 	private var structureInput : String;
 	private var sampleInput : String;
+    private var mode : Mode;
 	private var versionSpace : VersionSpace<Dynamic>;
 	
 	/**
@@ -79,7 +95,7 @@ class Processor {
 		Main.IO.debugln("Processing input...");
 		concepts = DotConceptParser.processConcepts(structureInput);
 		Main.IO.debugln("Concepts found: " + concepts);
-		var mode : Mode = DotConceptParser.determineMode(sampleInput);
+		mode = DotConceptParser.determineMode(sampleInput);
 		switch(mode) {
 			case Mode.EXTENDED:
 				Main.IO.writeln("Extended mode detected.");
@@ -107,7 +123,7 @@ class Processor {
 		var extremes : Extremes<Concept> = Concept.searchExtremes(firstConcept);
 		Main.IO.debugln("Extremes found: " + extremes);
 		var vs : VersionSpace<Concept> = new VersionSpace(extremes.all, extremes.empty);
-		versionSpace.print();
+        versionSpace = vs;
 		for (sample in DotConceptParser.processInputRegular(sampleInput, concepts)) {
 			switch (sample.type) {
 				case Sample.Type.NegativeSample:
@@ -166,14 +182,58 @@ class Processor {
 			}
 		}
 	}
-	
+
+    public function processQuestions() : Void {
+        #if js
+        var Io = cast(Main.IO,JavascriptIO);
+        var questionString = Io.getQuestions();
+        Io.debugln("Processing questionstring: " + questionString);
+        if (questionString.trim() == "") {
+            Io.writeln("You have to enter questions.");
+            Main.IO.flush();
+            return;
+        }
+        // This should not be possible, since this method can only be called if there
+        // already is an instance of the processor, which should mean the version space
+        // has been created.
+        if (versionSpace == null) {
+            Io.writeln("You have to derive the version space first.");
+            Main.IO.flush();
+            return;
+        }
+        Io.writeln("Answering questions using version space");
+        versionSpace.print();
+        var questions : Iterable<Statement<Dynamic>>;
+        switch (mode) {
+            case Mode.EXTENDED :
+                Io.debugln("Extended mode detected.");
+                questions = DotConceptParser.processQuestionExtended(questionString,concepts);
+            case Mode.REGULAR :
+                Io.debugln("Regular mode detected.");
+                questions = DotConceptParser.processQuestionRegular(questionString,concepts);
+        }
+        Io.debugln("Questions found: " + questions);
+        for (question in questions) {
+            Io.write("Version space contains " + question + ": ");
+            switch (versionSpace.contains(question)) {
+                case VersionSpace.ContainmentStatus.YES :
+                    Io.writeln("true");
+                case VersionSpace.ContainmentStatus.NO :
+                    Io.writeln("false");
+                case VersionSpace.ContainmentStatus.MAYBE :
+                    Io.writeln("maybe");
+            }
+        }
+        #end
+    }
+
 	public static function moo() {
 	
 	}
-	
-	/**
-	 * Method that is called from Javascript.
-	 */
+
+/**
+    * Method that starts processing.
+**/
 	public static function process() {
 		#if js
 			var Io = cast(Main.IO,JavascriptIO);
@@ -181,4 +241,21 @@ class Processor {
 		#end
 		instance = new Processor();
 	}
+/**
+    * Method that should only be called from Javascript.
+**/
+    public static function question() {
+        #if js
+			var Io = cast(Main.IO,JavascriptIO);
+			Io.clear();
+            if (instance == null) {
+                Io.writeln("You have to derive the version space first.");
+                Main.IO.flush();
+                return;
+            }
+            Main.IO.debugln("Answering questions.");
+            instance.processQuestions();
+        #end
+        Main.IO.flush();
+    }
 }

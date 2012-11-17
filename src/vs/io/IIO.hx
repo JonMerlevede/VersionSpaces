@@ -1,4 +1,4 @@
-package vs;
+package vs.io;
 
 /**
  * Interface that represents the capability to do IO.

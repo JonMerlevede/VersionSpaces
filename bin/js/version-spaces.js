@@ -1,8 +1,8 @@
-var $estr = function() { return js.Boot.__string_rec(this,''); };
-var Hash = function() {
+var $hxClasses = $hxClasses || {},$estr = function() { return js.Boot.__string_rec(this,''); };
+var Hash = $hxClasses["Hash"] = function() {
 	this.h = { };
 };
-Hash.__name__ = true;
+Hash.__name__ = ["Hash"];
 Hash.prototype = {
 	toString: function() {
 		var s = new StringBuf();
@@ -48,10 +48,11 @@ Hash.prototype = {
 	,set: function(key,value) {
 		this.h["$" + key] = value;
 	}
+	,h: null
 	,__class__: Hash
 }
-var HxOverrides = function() { }
-HxOverrides.__name__ = true;
+var HxOverrides = $hxClasses["HxOverrides"] = function() { }
+HxOverrides.__name__ = ["HxOverrides"];
 HxOverrides.dateStr = function(date) {
 	var m = date.getMonth() + 1;
 	var d = date.getDate();
@@ -115,10 +116,10 @@ HxOverrides.iter = function(a) {
 		return this.arr[this.cur++];
 	}};
 }
-var IntHash = function() {
+var IntHash = $hxClasses["IntHash"] = function() {
 	this.h = { };
 };
-IntHash.__name__ = true;
+IntHash.__name__ = ["IntHash"];
 IntHash.prototype = {
 	toString: function() {
 		var s = new StringBuf();
@@ -163,13 +164,14 @@ IntHash.prototype = {
 	,set: function(key,value) {
 		this.h[key] = value;
 	}
+	,h: null
 	,__class__: IntHash
 }
-var IntIter = function(min,max) {
+var IntIter = $hxClasses["IntIter"] = function(min,max) {
 	this.min = min;
 	this.max = max;
 };
-IntIter.__name__ = true;
+IntIter.__name__ = ["IntIter"];
 IntIter.prototype = {
 	next: function() {
 		return this.min++;
@@ -177,12 +179,14 @@ IntIter.prototype = {
 	,hasNext: function() {
 		return this.min < this.max;
 	}
+	,max: null
+	,min: null
 	,__class__: IntIter
 }
-var List = function() {
+var List = $hxClasses["List"] = function() {
 	this.length = 0;
 };
-List.__name__ = true;
+List.__name__ = ["List"];
 List.prototype = {
 	map: function(f) {
 		var b = new List();
@@ -287,10 +291,87 @@ List.prototype = {
 		this.q = x;
 		this.length++;
 	}
+	,length: null
+	,q: null
+	,h: null
 	,__class__: List
 }
-var Std = function() { }
-Std.__name__ = true;
+var Reflect = $hxClasses["Reflect"] = function() { }
+Reflect.__name__ = ["Reflect"];
+Reflect.hasField = function(o,field) {
+	return Object.prototype.hasOwnProperty.call(o,field);
+}
+Reflect.field = function(o,field) {
+	var v = null;
+	try {
+		v = o[field];
+	} catch( e ) {
+	}
+	return v;
+}
+Reflect.setField = function(o,field,value) {
+	o[field] = value;
+}
+Reflect.getProperty = function(o,field) {
+	var tmp;
+	return o == null?null:o.__properties__ && (tmp = o.__properties__["get_" + field])?o[tmp]():o[field];
+}
+Reflect.setProperty = function(o,field,value) {
+	var tmp;
+	if(o.__properties__ && (tmp = o.__properties__["set_" + field])) o[tmp](value); else o[field] = value;
+}
+Reflect.callMethod = function(o,func,args) {
+	return func.apply(o,args);
+}
+Reflect.fields = function(o) {
+	var a = [];
+	if(o != null) {
+		var hasOwnProperty = Object.prototype.hasOwnProperty;
+		for( var f in o ) {
+		if(hasOwnProperty.call(o,f)) a.push(f);
+		}
+	}
+	return a;
+}
+Reflect.isFunction = function(f) {
+	return typeof(f) == "function" && !(f.__name__ || f.__ename__);
+}
+Reflect.compare = function(a,b) {
+	return a == b?0:a > b?1:-1;
+}
+Reflect.compareMethods = function(f1,f2) {
+	if(f1 == f2) return true;
+	if(!Reflect.isFunction(f1) || !Reflect.isFunction(f2)) return false;
+	return f1.scope == f2.scope && f1.method == f2.method && f1.method != null;
+}
+Reflect.isObject = function(v) {
+	if(v == null) return false;
+	var t = typeof(v);
+	return t == "string" || t == "object" && !v.__enum__ || t == "function" && (v.__name__ || v.__ename__);
+}
+Reflect.deleteField = function(o,f) {
+	if(!Reflect.hasField(o,f)) return false;
+	delete(o[f]);
+	return true;
+}
+Reflect.copy = function(o) {
+	var o2 = { };
+	var _g = 0, _g1 = Reflect.fields(o);
+	while(_g < _g1.length) {
+		var f = _g1[_g];
+		++_g;
+		o2[f] = Reflect.field(o,f);
+	}
+	return o2;
+}
+Reflect.makeVarArgs = function(f) {
+	return function() {
+		var a = Array.prototype.slice.call(arguments);
+		return f(a);
+	};
+}
+var Std = $hxClasses["Std"] = function() { }
+Std.__name__ = ["Std"];
 Std["is"] = function(v,t) {
 	return js.Boot.__instanceof(v,t);
 }
@@ -312,10 +393,10 @@ Std.parseFloat = function(x) {
 Std.random = function(x) {
 	return Math.floor(Math.random() * x);
 }
-var StringBuf = function() {
+var StringBuf = $hxClasses["StringBuf"] = function() {
 	this.b = "";
 };
-StringBuf.__name__ = true;
+StringBuf.__name__ = ["StringBuf"];
 StringBuf.prototype = {
 	toString: function() {
 		return this.b;
@@ -329,10 +410,11 @@ StringBuf.prototype = {
 	,add: function(x) {
 		this.b += Std.string(x);
 	}
+	,b: null
 	,__class__: StringBuf
 }
-var StringTools = function() { }
-StringTools.__name__ = true;
+var StringTools = $hxClasses["StringTools"] = function() { }
+StringTools.__name__ = ["StringTools"];
 StringTools.urlEncode = function(s) {
 	return encodeURIComponent(s);
 }
@@ -417,22 +499,203 @@ StringTools.fastCodeAt = function(s,index) {
 StringTools.isEOF = function(c) {
 	return c != c;
 }
+var ValueType = $hxClasses["ValueType"] = { __ename__ : ["ValueType"], __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
+ValueType.TNull = ["TNull",0];
+ValueType.TNull.toString = $estr;
+ValueType.TNull.__enum__ = ValueType;
+ValueType.TInt = ["TInt",1];
+ValueType.TInt.toString = $estr;
+ValueType.TInt.__enum__ = ValueType;
+ValueType.TFloat = ["TFloat",2];
+ValueType.TFloat.toString = $estr;
+ValueType.TFloat.__enum__ = ValueType;
+ValueType.TBool = ["TBool",3];
+ValueType.TBool.toString = $estr;
+ValueType.TBool.__enum__ = ValueType;
+ValueType.TObject = ["TObject",4];
+ValueType.TObject.toString = $estr;
+ValueType.TObject.__enum__ = ValueType;
+ValueType.TFunction = ["TFunction",5];
+ValueType.TFunction.toString = $estr;
+ValueType.TFunction.__enum__ = ValueType;
+ValueType.TClass = function(c) { var $x = ["TClass",6,c]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
+ValueType.TEnum = function(e) { var $x = ["TEnum",7,e]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
+ValueType.TUnknown = ["TUnknown",8];
+ValueType.TUnknown.toString = $estr;
+ValueType.TUnknown.__enum__ = ValueType;
+var Type = $hxClasses["Type"] = function() { }
+Type.__name__ = ["Type"];
+Type.getClass = function(o) {
+	if(o == null) return null;
+	return o.__class__;
+}
+Type.getEnum = function(o) {
+	if(o == null) return null;
+	return o.__enum__;
+}
+Type.getSuperClass = function(c) {
+	return c.__super__;
+}
+Type.getClassName = function(c) {
+	var a = c.__name__;
+	return a.join(".");
+}
+Type.getEnumName = function(e) {
+	var a = e.__ename__;
+	return a.join(".");
+}
+Type.resolveClass = function(name) {
+	var cl = $hxClasses[name];
+	if(cl == null || !cl.__name__) return null;
+	return cl;
+}
+Type.resolveEnum = function(name) {
+	var e = $hxClasses[name];
+	if(e == null || !e.__ename__) return null;
+	return e;
+}
+Type.createInstance = function(cl,args) {
+	switch(args.length) {
+	case 0:
+		return new cl();
+	case 1:
+		return new cl(args[0]);
+	case 2:
+		return new cl(args[0],args[1]);
+	case 3:
+		return new cl(args[0],args[1],args[2]);
+	case 4:
+		return new cl(args[0],args[1],args[2],args[3]);
+	case 5:
+		return new cl(args[0],args[1],args[2],args[3],args[4]);
+	case 6:
+		return new cl(args[0],args[1],args[2],args[3],args[4],args[5]);
+	case 7:
+		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6]);
+	case 8:
+		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7]);
+	default:
+		throw "Too many arguments";
+	}
+	return null;
+}
+Type.createEmptyInstance = function(cl) {
+	function empty() {}; empty.prototype = cl.prototype;
+	return new empty();
+}
+Type.createEnum = function(e,constr,params) {
+	var f = Reflect.field(e,constr);
+	if(f == null) throw "No such constructor " + constr;
+	if(Reflect.isFunction(f)) {
+		if(params == null) throw "Constructor " + constr + " need parameters";
+		return f.apply(e,params);
+	}
+	if(params != null && params.length != 0) throw "Constructor " + constr + " does not need parameters";
+	return f;
+}
+Type.createEnumIndex = function(e,index,params) {
+	var c = e.__constructs__[index];
+	if(c == null) throw index + " is not a valid enum constructor index";
+	return Type.createEnum(e,c,params);
+}
+Type.getInstanceFields = function(c) {
+	var a = [];
+	for(var i in c.prototype) a.push(i);
+	HxOverrides.remove(a,"__class__");
+	HxOverrides.remove(a,"__properties__");
+	return a;
+}
+Type.getClassFields = function(c) {
+	var a = Reflect.fields(c);
+	HxOverrides.remove(a,"__name__");
+	HxOverrides.remove(a,"__interfaces__");
+	HxOverrides.remove(a,"__properties__");
+	HxOverrides.remove(a,"__super__");
+	HxOverrides.remove(a,"prototype");
+	return a;
+}
+Type.getEnumConstructs = function(e) {
+	var a = e.__constructs__;
+	return a.slice();
+}
+Type["typeof"] = function(v) {
+	switch(typeof(v)) {
+	case "boolean":
+		return ValueType.TBool;
+	case "string":
+		return ValueType.TClass(String);
+	case "number":
+		if(Math.ceil(v) == v % 2147483648.0) return ValueType.TInt;
+		return ValueType.TFloat;
+	case "object":
+		if(v == null) return ValueType.TNull;
+		var e = v.__enum__;
+		if(e != null) return ValueType.TEnum(e);
+		var c = v.__class__;
+		if(c != null) return ValueType.TClass(c);
+		return ValueType.TObject;
+	case "function":
+		if(v.__name__ || v.__ename__) return ValueType.TObject;
+		return ValueType.TFunction;
+	case "undefined":
+		return ValueType.TNull;
+	default:
+		return ValueType.TUnknown;
+	}
+}
+Type.enumEq = function(a,b) {
+	if(a == b) return true;
+	try {
+		if(a[0] != b[0]) return false;
+		var _g1 = 2, _g = a.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(!Type.enumEq(a[i],b[i])) return false;
+		}
+		var e = a.__enum__;
+		if(e != b.__enum__ || e == null) return false;
+	} catch( e ) {
+		return false;
+	}
+	return true;
+}
+Type.enumConstructor = function(e) {
+	return e[0];
+}
+Type.enumParameters = function(e) {
+	return e.slice(2);
+}
+Type.enumIndex = function(e) {
+	return e[1];
+}
+Type.allEnums = function(e) {
+	var all = [];
+	var cst = e.__constructs__;
+	var _g = 0;
+	while(_g < cst.length) {
+		var c = cst[_g];
+		++_g;
+		var v = Reflect.field(e,c);
+		if(!Reflect.isFunction(v)) all.push(v);
+	}
+	return all;
+}
 var haxe = haxe || {}
-haxe.Log = function() { }
-haxe.Log.__name__ = true;
+haxe.Log = $hxClasses["haxe.Log"] = function() { }
+haxe.Log.__name__ = ["haxe","Log"];
 haxe.Log.trace = function(v,infos) {
 	js.Boot.__trace(v,infos);
 }
 haxe.Log.clear = function() {
 	js.Boot.__clear_trace();
 }
-haxe.Timer = function(time_ms) {
+haxe.Timer = $hxClasses["haxe.Timer"] = function(time_ms) {
 	var me = this;
 	this.id = window.setInterval(function() {
 		me.run();
 	},time_ms);
 };
-haxe.Timer.__name__ = true;
+haxe.Timer.__name__ = ["haxe","Timer"];
 haxe.Timer.delay = function(f,time_ms) {
 	var t = new haxe.Timer(time_ms);
 	t.run = function() {
@@ -458,11 +721,12 @@ haxe.Timer.prototype = {
 		window.clearInterval(this.id);
 		this.id = null;
 	}
+	,id: null
 	,__class__: haxe.Timer
 }
 var js = js || {}
-js.Boot = function() { }
-js.Boot.__name__ = true;
+js.Boot = $hxClasses["js.Boot"] = function() { }
+js.Boot.__name__ = ["js","Boot"];
 js.Boot.__unhtml = function(s) {
 	return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
 }
@@ -596,8 +860,10 @@ js.Boot.__instanceof = function(o,cl) {
 js.Boot.__cast = function(o,t) {
 	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
 }
-js.Lib = function() { }
-js.Lib.__name__ = true;
+js.Lib = $hxClasses["js.Lib"] = function() { }
+js.Lib.__name__ = ["js","Lib"];
+js.Lib.document = null;
+js.Lib.window = null;
 js.Lib.debug = function() {
 	debugger;
 }
@@ -611,26 +877,107 @@ js.Lib.setErrorHandler = function(f) {
 	js.Lib.onerror = f;
 }
 var vs = vs || {}
-vs.Statement = function() { }
-vs.Statement.__name__ = true;
-vs.Statement.prototype = {
-	__class__: vs.Statement
+vs.Main = $hxClasses["vs.Main"] = function() {
+};
+vs.Main.__name__ = ["vs","Main"];
+vs.Main.__properties__ = {get_IO:"getIO"}
+vs.Main.IO = null;
+vs.Main._IO = null;
+vs.Main.getIO = function() {
+	return vs.Main._IO;
 }
-vs.Concept = function(name) {
+vs.Main.dummyStructure = function() {
+	vs.Main.getIO().writeln("Initializing");
+	var empty = new vs.core.Concept("empty");
+	var blue = new vs.core.Concept("blue");
+	var green = new vs.core.Concept("green");
+	var red = new vs.core.Concept("red");
+	var orange = new vs.core.Concept("orange");
+	var purple = new vs.core.Concept("purple");
+	var mono = new vs.core.Concept("mono");
+	var poly = new vs.core.Concept("poly");
+	var all = new vs.core.Concept("all");
+	vs.Main.getIO().writeln("Created concepts. Inserting hierarchy...");
+	empty.addParents([blue,green,red,orange,purple]);
+	mono.addChildren([blue,green,red]);
+	poly.addChildren([orange,purple]);
+	all.addChildren([mono,poly]);
+	vs.Main.getIO().writeln("Hierarchy created. Creating version space...");
+	var vs1 = new vs.core.VersionSpace(all,empty);
+	vs.Main.getIO().writeln("Starting...");
+	vs1.print();
+	vs.Main.getIO().writeln("Adding red...");
+	vs1.add(red);
+	vs1.print();
+	vs.Main.getIO().writeln("Substracting purple...");
+	vs1.substract(purple);
+	vs1.print();
+	vs.Main.getIO().writeln("Adding blue...");
+	vs1.add(blue);
+	vs1.print();
+}
+vs.Main.dummyStructure2 = function() {
+	var emptyTijd = new vs.core.Concept("emptyTijd");
+	var voormiddag = new vs.core.Concept("voormiddag");
+	var namiddag = new vs.core.Concept("namiddag");
+	var avond = new vs.core.Concept("avond");
+	var nacht = new vs.core.Concept("nacht");
+	var empty = new vs.core.Concept("empty");
+	var blue = new vs.core.Concept("blue");
+	var green = new vs.core.Concept("green");
+	var red = new vs.core.Concept("red");
+	var orange = new vs.core.Concept("orange");
+	var purple = new vs.core.Concept("purple");
+	var mono = new vs.core.Concept("mono");
+	var poly = new vs.core.Concept("poly");
+	var all = new vs.core.Concept("all");
+}
+vs.Main.start_cpp = function() {
+}
+vs.Main.start_js = function() {
+	vs.Main._IO = new vs.io.JavascriptIO();
+	vs.core.Processor.moo();
+	vs.core.ExtendedConcept.moo();
+	vs.Main.dummyStructure();
+}
+vs.Main.start_java = function() {
+}
+vs.Main.main = function() {
+	vs.Main._IO = new vs.io.JavascriptIO();
+	vs.core.Processor.moo();
+	vs.core.ExtendedConcept.moo();
+	vs.Main.dummyStructure();
+}
+vs.Main.prototype = {
+	__class__: vs.Main
+}
+if(!vs.core) vs.core = {}
+vs.core.Statement = $hxClasses["vs.core.Statement"] = function() { }
+vs.core.Statement.__name__ = ["vs","core","Statement"];
+vs.core.Statement.prototype = {
+	toString: null
+	,isEmpty: null
+	,isAll: null
+	,specialise: null
+	,generalise: null
+	,contains: null
+	,__class__: vs.core.Statement
+}
+vs.core.Concept = $hxClasses["vs.core.Concept"] = function(name) {
 	this.name = name;
 	this.children = new List();
 	this.parents = new List();
 };
-vs.Concept.__name__ = true;
-vs.Concept.__interfaces__ = [vs.Statement];
-vs.Concept.searchExtremes = function(concept) {
+vs.core.Concept.__name__ = ["vs","core","Concept"];
+vs.core.Concept.__interfaces__ = [vs.core.Statement];
+vs.core.Concept.searchExtremes = function(concept) {
 	var all = concept;
 	var empty = concept;
 	while(all.parents.length != 0) all = all.parents.first();
 	while(empty.children.length != 0) empty = empty.children.first();
 	return { all : all, empty : empty};
 }
-vs.Concept.prototype = {
+vs.core.Concept.prototype = {
 	contains: function(concept) {
 		if(concept == this) return true;
 		var $it0 = this.children.iterator();
@@ -657,7 +1004,7 @@ vs.Concept.prototype = {
 				specialisations.add(s);
 			}
 		}
-		specialisations = vs.StatementHelper.sanitiseSpecialisations(specialisations);
+		specialisations = vs.core.StatementHelper.sanitiseSpecialisations(specialisations);
 		return specialisations;
 	}
 	,generalise: function(concept) {
@@ -681,7 +1028,7 @@ vs.Concept.prototype = {
 			}
 		}
 		vs.Main.getIO().debugln("Sanitising " + Std.string(generalisations));
-		generalisations = vs.StatementHelper.sanitiseGeneralisations(generalisations);
+		generalisations = vs.core.StatementHelper.sanitiseGeneralisations(generalisations);
 		vs.Main.getIO().debugln("Sanitised: " + Std.string(generalisations));
 		return generalisations;
 	}
@@ -725,96 +1072,15 @@ vs.Concept.prototype = {
 	,isAll: function() {
 		return this.parents.length == 0;
 	}
-	,__class__: vs.Concept
+	,numberOfChildren: null
+	,numberOfParents: null
+	,parents: null
+	,children: null
+	,name: null
+	,__class__: vs.core.Concept
+	,__properties__: {get_numberOfParents:"getNumberOfParents",get_numberOfChildren:"getNumberOfChildren"}
 }
-vs.DotConceptParser = function() { }
-vs.DotConceptParser.__name__ = true;
-vs.DotConceptParser.processConcepts = function(string) {
-	var lines = string.split("\n");
-	vs.Main.getIO().debugln("Lines: " + Std.string(lines));
-	var concepts = new Hash();
-	var i = 0;
-	var _g = 0;
-	while(_g < lines.length) {
-		var line = lines[_g];
-		++_g;
-		i++;
-		vs.Main.getIO().debugln("Processing line: " + line);
-		var connection = line.split("->");
-		if(connection.length != 2) {
-			if(!vs.Helper.isEmptyLine(line)) vs.Main.getIO().warnln("Ignoring line " + i + " (" + line + ")");
-			continue;
-		}
-		var childKey = StringTools.trim(connection[0]);
-		var child, parent;
-		if(concepts.exists(childKey)) child = concepts.get(childKey); else {
-			child = new vs.Concept(childKey);
-			concepts.set(child.name,child);
-		}
-		var parentKeys = connection[1].split(",");
-		var _g1 = 0;
-		while(_g1 < parentKeys.length) {
-			var val = parentKeys[_g1];
-			++_g1;
-			var parentKey = StringTools.trim(val);
-			if(concepts.exists(parentKey)) parent = concepts.get(parentKey); else {
-				parent = new vs.Concept(parentKey);
-				concepts.set(parent.name,parent);
-			}
-			parent.addChild(child);
-		}
-	}
-	return concepts;
-}
-vs.DotConceptParser.determineMode = function(samples) {
-	if(vs.Helper.containsChar(samples,"[")) return vs.Mode.EXTENDED; else return vs.Mode.REGULAR;
-}
-vs.DotConceptParser.processInput = function(string,f) {
-	var lines = string.split("\n");
-	var examples = new List();
-	var i = 0;
-	var _g = 0;
-	while(_g < lines.length) {
-		var line = lines[_g];
-		++_g;
-		i++;
-		line = StringTools.trim(line);
-		var type = HxOverrides.substr(line,0,1);
-		var statementString = StringTools.trim(HxOverrides.substr(line,1,null));
-		if(type == "-") {
-			var tmp = { type : vs.Type.NegativeSample, concept : f(statementString)};
-			examples.add(tmp);
-		} else if(type == "+") {
-			var tmp = { type : vs.Type.PositiveSample, concept : f(statementString)};
-			examples.add(tmp);
-		} else if(!vs.Helper.isEmptyLine(line)) vs.Main.getIO().warnln("Ignoring sample " + i + " (" + line + ")");
-	}
-	return examples;
-}
-vs.DotConceptParser.processInputRegular = function(string,allConcepts) {
-	return vs.DotConceptParser.processInput(string,function(conceptKey) {
-		return allConcepts.get(conceptKey);
-	});
-}
-vs.DotConceptParser.processInputExtended = function(string,allConcepts) {
-	return vs.DotConceptParser.processInput(string,function(extendedConceptString) {
-		extendedConceptString = HxOverrides.substr(extendedConceptString,1,extendedConceptString.length - 2);
-		var conceptKeys = extendedConceptString.split(".");
-		vs.Main.getIO().debugln("Processing extended concept " + Std.string(conceptKeys) + ".");
-		var concepts = new List();
-		var _g = 0;
-		while(_g < conceptKeys.length) {
-			var key = conceptKeys[_g];
-			++_g;
-			vs.Main.getIO().debugln("Looking up key " + key);
-			concepts.add(allConcepts.get(key));
-		}
-		var ec = new vs.ExtendedConcept(concepts);
-		vs.Main.getIO().debugln("Created extended concept " + Std.string(ec));
-		return ec;
-	});
-}
-vs.ExtendedConcept = function(concepts) {
+vs.core.ExtendedConcept = $hxClasses["vs.core.ExtendedConcept"] = function(concepts) {
 	this.concepts = new IntHash();
 	var i = 0;
 	var $it0 = $iterator(concepts)();
@@ -824,31 +1090,31 @@ vs.ExtendedConcept = function(concepts) {
 		i++;
 	}
 };
-vs.ExtendedConcept.__name__ = true;
-vs.ExtendedConcept.__interfaces__ = [vs.Statement];
-vs.ExtendedConcept.moo = function() {
+vs.core.ExtendedConcept.__name__ = ["vs","core","ExtendedConcept"];
+vs.core.ExtendedConcept.__interfaces__ = [vs.core.Statement];
+vs.core.ExtendedConcept.moo = function() {
 }
-vs.ExtendedConcept.searchExtremes = function(extendedConcept) {
-	var all = vs.ExtendedConcept.cloneStm(extendedConcept);
-	var empty = vs.ExtendedConcept.cloneStm(extendedConcept);
+vs.core.ExtendedConcept.searchExtremes = function(extendedConcept) {
+	var all = vs.core.ExtendedConcept.cloneStm(extendedConcept);
+	var empty = vs.core.ExtendedConcept.cloneStm(extendedConcept);
 	var $it0 = extendedConcept.concepts.iterator();
 	while( $it0.hasNext() ) {
 		var pConcept = $it0.next();
-		var extremes = vs.Concept.searchExtremes(pConcept.concept);
+		var extremes = vs.core.Concept.searchExtremes(pConcept.concept);
 		all.concepts.set(pConcept.position,{ position : pConcept.position, concept : extremes.all});
 		empty.concepts.set(pConcept.position,{ position : pConcept.position, concept : extremes.empty});
 	}
 	return { all : all, empty : empty};
 }
-vs.ExtendedConcept.forEachConcept = function(stm1,stm2,f) {
+vs.core.ExtendedConcept.forEachConcept = function(stm1,stm2,f) {
 	var $it0 = stm1.concepts.iterator();
 	while( $it0.hasNext() ) {
 		var pConcept = $it0.next();
 		f(pConcept,stm2.concepts.get(pConcept.position));
 	}
 }
-vs.ExtendedConcept.cloneStm = function(stm) {
-	var t = new vs.ExtendedConcept(new List());
+vs.core.ExtendedConcept.cloneStm = function(stm) {
+	var t = new vs.core.ExtendedConcept(new List());
 	var $it0 = stm.concepts.iterator();
 	while( $it0.hasNext() ) {
 		var pConcept = $it0.next();
@@ -856,7 +1122,7 @@ vs.ExtendedConcept.cloneStm = function(stm) {
 	}
 	return t;
 }
-vs.ExtendedConcept.prototype = {
+vs.core.ExtendedConcept.prototype = {
 	toString: function() {
 		var r = "[";
 		var it = this.concepts.iterator();
@@ -870,28 +1136,28 @@ vs.ExtendedConcept.prototype = {
 	,specialise: function(stm) {
 		var _g = this;
 		var specialisedExtendedConcepts = new List();
-		vs.ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
+		vs.core.ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
 			var basis = _g.clone();
 			basis.concepts.remove(cThis.position);
 			var $it0 = cThis.concept.specialise(cStm.concept).iterator();
 			while( $it0.hasNext() ) {
 				var specialisedConcept = $it0.next();
-				var clone = vs.ExtendedConcept.cloneStm(basis);
+				var clone = vs.core.ExtendedConcept.cloneStm(basis);
 				clone.concepts.set(cThis.position,{ position : cThis.position, concept : specialisedConcept});
 				specialisedExtendedConcepts.add(clone);
 			}
 		});
-		return vs.StatementHelper.sanitiseSpecialisations(specialisedExtendedConcepts);
+		return vs.core.StatementHelper.sanitiseSpecialisations(specialisedExtendedConcepts);
 	}
 	,generalise: function(stm) {
 		var generalisedExtendedConcepts = new List();
-		vs.ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
+		vs.core.ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
 			var generalisedConcepts = cThis.concept.generalise(cStm.concept);
 			if(generalisedExtendedConcepts.length == 0) {
 				var $it0 = generalisedConcepts.iterator();
 				while( $it0.hasNext() ) {
 					var gc = $it0.next();
-					var t = new vs.ExtendedConcept(new List());
+					var t = new vs.core.ExtendedConcept(new List());
 					t.concepts.set(cThis.position,{ position : cThis.position, concept : gc});
 					generalisedExtendedConcepts.add(t);
 				}
@@ -900,12 +1166,12 @@ vs.ExtendedConcept.prototype = {
 				var $it1 = generalisedExtendedConcepts.iterator();
 				while( $it1.hasNext() ) {
 					var g = $it1.next();
-					var clone = vs.ExtendedConcept.cloneStm(g);
+					var clone = vs.core.ExtendedConcept.cloneStm(g);
 					var iter = generalisedConcepts.iterator();
 					var concept = iter.next();
 					g.concepts.set(cThis.position,{ position : cThis.position, concept : concept});
 					while(iter.hasNext()) {
-						var tmp = vs.ExtendedConcept.cloneStm(clone);
+						var tmp = vs.core.ExtendedConcept.cloneStm(clone);
 						concept = iter.next();
 						tmp.concepts.set(cThis.position,{ position : cThis.position, concept : concept});
 						toAdd.add(tmp);
@@ -918,17 +1184,17 @@ vs.ExtendedConcept.prototype = {
 				}
 			}
 		});
-		return vs.StatementHelper.sanitiseGeneralisations(generalisedExtendedConcepts);
+		return vs.core.StatementHelper.sanitiseGeneralisations(generalisedExtendedConcepts);
 	}
 	,clone: function() {
-		return vs.ExtendedConcept.cloneStm(this);
+		return vs.core.ExtendedConcept.cloneStm(this);
 	}
 	,pure: function() {
 		return this;
 	}
 	,contains: function(stm) {
 		var returnValue = true;
-		vs.ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
+		vs.core.ExtendedConcept.forEachConcept(this,stm,function(cThis,cStm) {
 			if(returnValue) {
 				if(!cThis.concept.contains(cStm.concept)) returnValue = false;
 			}
@@ -953,11 +1219,12 @@ vs.ExtendedConcept.prototype = {
 		}
 		return !isNotAll;
 	}
-	,__class__: vs.ExtendedConcept
+	,concepts: null
+	,__class__: vs.core.ExtendedConcept
 }
-vs.Helper = function() { }
-vs.Helper.__name__ = true;
-vs.Helper.hashToList = function(hash) {
+vs.core.Helper = $hxClasses["vs.core.Helper"] = function() { }
+vs.core.Helper.__name__ = ["vs","core","Helper"];
+vs.core.Helper.hashToList = function(hash) {
 	var list = new List();
 	var $it0 = hash.iterator();
 	while( $it0.hasNext() ) {
@@ -966,7 +1233,7 @@ vs.Helper.hashToList = function(hash) {
 	}
 	return list;
 }
-vs.Helper.cloneIterable = function(list) {
+vs.core.Helper.cloneIterable = function(list) {
 	var newList = new List();
 	var $it0 = $iterator(list)();
 	while( $it0.hasNext() ) {
@@ -975,7 +1242,7 @@ vs.Helper.cloneIterable = function(list) {
 	}
 	return newList;
 }
-vs.Helper.cloneHash = function(hash) {
+vs.core.Helper.cloneHash = function(hash) {
 	var newHash = new Hash();
 	var $it0 = hash.keys();
 	while( $it0.hasNext() ) {
@@ -984,10 +1251,10 @@ vs.Helper.cloneHash = function(hash) {
 	}
 	return newHash;
 }
-vs.Helper.isEmptyLine = function(str) {
+vs.core.Helper.isEmptyLine = function(str) {
 	return StringTools.trim(str).length == 0;
 }
-vs.Helper.containsChar = function(str,$char) {
+vs.core.Helper.containsChar = function(str,$char) {
 	if($char.length != 1) throw "Only works for characters";
 	var i = 0;
 	while(i < str.length) {
@@ -996,19 +1263,372 @@ vs.Helper.containsChar = function(str,$char) {
 	}
 	return false;
 }
-vs.IIO = function() { }
-vs.IIO.__name__ = true;
-vs.IIO.prototype = {
-	__class__: vs.IIO
+vs.core.Mode = $hxClasses["vs.core.Mode"] = { __ename__ : ["vs","core","Mode"], __constructs__ : ["REGULAR","EXTENDED"] }
+vs.core.Mode.REGULAR = ["REGULAR",0];
+vs.core.Mode.REGULAR.toString = $estr;
+vs.core.Mode.REGULAR.__enum__ = vs.core.Mode;
+vs.core.Mode.EXTENDED = ["EXTENDED",1];
+vs.core.Mode.EXTENDED.toString = $estr;
+vs.core.Mode.EXTENDED.__enum__ = vs.core.Mode;
+vs.core.Processor = $hxClasses["vs.core.Processor"] = function() {
+	try {
+		var time = haxe.Timer.stamp();
+		vs.Main.getIO().debugln("Reading input...");
+		this.structureInput = vs.Main.getIO().getStructure();
+		this.sampleInput = vs.Main.getIO().getSamples();
+		this._process();
+		time = haxe.Timer.stamp() - time;
+		time *= 1000;
+		var timeStr = Math.round(time) + "";
+		vs.Main.getIO().writeln("Computation took " + timeStr + "ms.");
+		vs.Main.getIO().flush();
+	} catch( msg ) {
+		if( js.Boot.__instanceof(msg,String) ) {
+			vs.Main.getIO().errorln(msg);
+			vs.Main.getIO().flush();
+		} else throw(msg);
+	}
+};
+vs.core.Processor.__name__ = ["vs","core","Processor"];
+vs.core.Processor.instance = null;
+vs.core.Processor.moo = function() {
 }
-vs.JavascriptIO = function() {
+vs.core.Processor.process = function() {
+	var Io = js.Boot.__cast(vs.Main.getIO() , vs.io.JavascriptIO);
+	Io.clear();
+	vs.core.Processor.instance = new vs.core.Processor();
+}
+vs.core.Processor.question = function() {
+	var Io = js.Boot.__cast(vs.Main.getIO() , vs.io.JavascriptIO);
+	Io.clear();
+	if(vs.core.Processor.instance == null) {
+		Io.writeln("You have to derive the version space first.");
+		vs.Main.getIO().flush();
+		return;
+	}
+	vs.Main.getIO().debugln("Answering questions.");
+	vs.core.Processor.instance.processQuestions();
+	vs.Main.getIO().flush();
+}
+vs.core.Processor.prototype = {
+	processQuestions: function() {
+		var Io = js.Boot.__cast(vs.Main.getIO() , vs.io.JavascriptIO);
+		var questionString = Io.getQuestions();
+		if(StringTools.trim(questionString) == "") {
+			Io.writeln("You have to enter questions.");
+			vs.Main.getIO().flush();
+			return;
+		}
+		if(this.versionSpace == null) {
+			Io.writeln("You have to derive the version space first.");
+			vs.Main.getIO().flush();
+			return;
+		}
+		Io.writeln("Answering questions using version space");
+		this.versionSpace.print();
+		var questions;
+		switch( (this.mode)[1] ) {
+		case 1:
+			questions = vs.parse.DotConceptParser.processQuestionExtended(questionString,this.concepts);
+			break;
+		case 0:
+			questions = vs.parse.DotConceptParser.processQuestionRegular(questionString,this.concepts);
+			break;
+		}
+		var $it0 = $iterator(questions)();
+		while( $it0.hasNext() ) {
+			var question = $it0.next();
+			Io.write("Version space contains " + Std.string(question) + ": ");
+			switch( (this.versionSpace.contains(question))[1] ) {
+			case 0:
+				Io.writeln("true");
+				break;
+			case 1:
+				Io.writeln("false");
+				break;
+			case 2:
+				Io.writeln("maybe");
+				break;
+			}
+		}
+	}
+	,processExtendedConcepts: function() {
+		var extendedSamples = vs.parse.DotConceptParser.processInputExtended(this.sampleInput,this.concepts);
+		vs.Main.getIO().debugln("Samples found.");
+		var firstSample = $iterator(extendedSamples)().next().concept;
+		var extremes = vs.core.ExtendedConcept.searchExtremes(firstSample);
+		vs.Main.getIO().debugln("Extremes found: " + Std.string(extremes));
+		var _vs = new vs.core.VersionSpace(extremes.all,extremes.empty);
+		this.versionSpace = _vs;
+		this.versionSpace.print();
+		var $it0 = $iterator(extendedSamples)();
+		while( $it0.hasNext() ) {
+			var sample = $it0.next();
+			switch( (sample.type)[1] ) {
+			case 1:
+				vs.Main.getIO().write("Substracting concept ");
+				vs.Main.getIO().write("<span class=\"concept\">");
+				vs.Main.getIO().write("" + Std.string(sample.concept));
+				vs.Main.getIO().writeln("</span>");
+				this.versionSpace.substract(sample.concept);
+				this.versionSpace.print();
+				break;
+			case 0:
+				vs.Main.getIO().writeln("Adding concept " + Std.string(sample.concept));
+				this.versionSpace.add(sample.concept);
+				this.versionSpace.print();
+				break;
+			}
+		}
+	}
+	,processConcepts: function() {
+		var firstConcept = this.concepts.get(this.concepts.keys().next());
+		var extremes = vs.core.Concept.searchExtremes(firstConcept);
+		vs.Main.getIO().debugln("Extremes found: " + Std.string(extremes));
+		var vs1 = new vs.core.VersionSpace(extremes.all,extremes.empty);
+		this.versionSpace = vs1;
+		var $it0 = $iterator(vs.parse.DotConceptParser.processInputRegular(this.sampleInput,this.concepts))();
+		while( $it0.hasNext() ) {
+			var sample = $it0.next();
+			switch( (sample.type)[1] ) {
+			case 1:
+				vs.Main.getIO().writeln("Substracting concept " + Std.string(sample.concept));
+				this.versionSpace.substract(sample.concept);
+				this.versionSpace.print();
+				break;
+			case 0:
+				vs.Main.getIO().writeln("Adding concept " + Std.string(sample.concept));
+				this.versionSpace.add(sample.concept);
+				this.versionSpace.print();
+				break;
+			}
+		}
+	}
+	,_process: function() {
+		vs.Main.getIO().debugln("   Structure input: " + this.structureInput);
+		vs.Main.getIO().debugln("   Sample input: " + this.sampleInput);
+		vs.Main.getIO().debugln("Processing input...");
+		this.concepts = vs.parse.DotConceptParser.processConcepts(this.structureInput);
+		vs.Main.getIO().debugln("Concepts found: " + Std.string(this.concepts));
+		this.mode = vs.parse.DotConceptParser.determineMode(this.sampleInput);
+		switch( (this.mode)[1] ) {
+		case 1:
+			vs.Main.getIO().writeln("Extended mode detected.");
+			this.processExtendedConcepts();
+			break;
+		case 0:
+			vs.Main.getIO().writeln("Regular mode detected.");
+			this.processConcepts();
+			break;
+		}
+	}
+	,versionSpace: null
+	,mode: null
+	,sampleInput: null
+	,structureInput: null
+	,concepts: null
+	,__class__: vs.core.Processor
+}
+vs.core.Type = $hxClasses["vs.core.Type"] = { __ename__ : ["vs","core","Type"], __constructs__ : ["PositiveSample","NegativeSample"] }
+vs.core.Type.PositiveSample = ["PositiveSample",0];
+vs.core.Type.PositiveSample.toString = $estr;
+vs.core.Type.PositiveSample.__enum__ = vs.core.Type;
+vs.core.Type.NegativeSample = ["NegativeSample",1];
+vs.core.Type.NegativeSample.toString = $estr;
+vs.core.Type.NegativeSample.__enum__ = vs.core.Type;
+vs.core.StatementHelper = $hxClasses["vs.core.StatementHelper"] = function() {
+};
+vs.core.StatementHelper.__name__ = ["vs","core","StatementHelper"];
+vs.core.StatementHelper.sanitiseGeneralisations = function(generalisedStatements) {
+	var newList = new List();
+	var $it0 = generalisedStatements.iterator();
+	while( $it0.hasNext() ) {
+		var stm = $it0.next();
+		var add = true;
+		var $it1 = generalisedStatements.iterator();
+		while( $it1.hasNext() ) {
+			var stm2 = $it1.next();
+			if(stm == stm2) continue;
+			if(stm.contains(stm2)) {
+				add = false;
+				break;
+			}
+		}
+		if(add) newList.add(stm);
+	}
+	return newList;
+}
+vs.core.StatementHelper.sanitiseSpecialisations = function(specialisedStatements) {
+	var newList = new List();
+	var $it0 = specialisedStatements.iterator();
+	while( $it0.hasNext() ) {
+		var stm = $it0.next();
+		var add = true;
+		var $it1 = specialisedStatements.iterator();
+		while( $it1.hasNext() ) {
+			var stm2 = $it1.next();
+			if(stm == stm2) continue;
+			if(stm2.contains(stm)) {
+				add = false;
+				break;
+			}
+		}
+		if(add) newList.add(stm);
+	}
+	return newList;
+}
+vs.core.StatementHelper.prototype = {
+	__class__: vs.core.StatementHelper
+}
+vs.core.ContainmentStatus = $hxClasses["vs.core.ContainmentStatus"] = { __ename__ : ["vs","core","ContainmentStatus"], __constructs__ : ["YES","NO","MAYBE"] }
+vs.core.ContainmentStatus.YES = ["YES",0];
+vs.core.ContainmentStatus.YES.toString = $estr;
+vs.core.ContainmentStatus.YES.__enum__ = vs.core.ContainmentStatus;
+vs.core.ContainmentStatus.NO = ["NO",1];
+vs.core.ContainmentStatus.NO.toString = $estr;
+vs.core.ContainmentStatus.NO.__enum__ = vs.core.ContainmentStatus;
+vs.core.ContainmentStatus.MAYBE = ["MAYBE",2];
+vs.core.ContainmentStatus.MAYBE.toString = $estr;
+vs.core.ContainmentStatus.MAYBE.__enum__ = vs.core.ContainmentStatus;
+vs.core.VersionSpace = $hxClasses["vs.core.VersionSpace"] = function(mostGeneral,mostSpecific) {
+	this.G = new List();
+	this.G.add(mostGeneral);
+	this.S = new List();
+	this.S.add(mostSpecific);
+};
+vs.core.VersionSpace.__name__ = ["vs","core","VersionSpace"];
+vs.core.VersionSpace.searchExtremes = function(statements) {
+	var all = null;
+	var empty = null;
+	var $it0 = $iterator(statements)();
+	while( $it0.hasNext() ) {
+		var statement = $it0.next();
+		if(statement.isAll()) {
+			if(all != null) throw "Disconnected structure! Two heads.";
+			all = statement;
+		}
+		if(statement.isEmpty()) {
+			if(empty != null) throw "Disconnected structure! Two bottoms.";
+			empty = statement;
+		}
+	}
+	if(all == null) throw "Invalid structure! No all.";
+	if(empty == null) throw "Invalid structure! No empty.";
+	return { all : all, empty : empty};
+}
+vs.core.VersionSpace.prototype = {
+	print: function() {
+		vs.Main.getIO().writeln("The definition of the Version Space is:");
+		vs.Main.getIO().write("<div class=\"vs\">");
+		vs.Main.getIO().writeln("   G: " + Std.string(this.G));
+		vs.Main.getIO().writeln("   S: " + Std.string(this.S));
+		vs.Main.getIO().write("</div>");
+	}
+	,ms: function(hc) {
+		var rv = "{";
+		var iter = hc.keys();
+		while(iter.hasNext()) {
+			var next = iter.next();
+			rv += next;
+			if(iter.hasNext()) rv += ", ";
+		}
+		return rv + "}";
+	}
+	,sanitizeVersionSpace: function() {
+		this.S = vs.core.StatementHelper.sanitiseGeneralisations(this.S);
+		var newG = new List();
+		var $it0 = this.G.iterator();
+		while( $it0.hasNext() ) {
+			var general = $it0.next();
+			var $it1 = this.S.iterator();
+			while( $it1.hasNext() ) {
+				var specific = $it1.next();
+				if(!general.contains(specific)) continue;
+				newG.add(general);
+			}
+		}
+		this.G = vs.core.StatementHelper.sanitiseSpecialisations(newG);
+	}
+	,substract: function(statement) {
+		var newG = new List();
+		var $it0 = this.G.iterator();
+		while( $it0.hasNext() ) {
+			var val = $it0.next();
+			var $it1 = val.specialise(statement).iterator();
+			while( $it1.hasNext() ) {
+				var specialised = $it1.next();
+				vs.Main.getIO().debugln("Adding specialised statements: " + Std.string(specialised));
+				newG.add(specialised);
+			}
+		}
+		this.G = newG;
+		this.sanitizeVersionSpace();
+	}
+	,add: function(statement) {
+		var newS = new List();
+		var $it0 = this.S.iterator();
+		while( $it0.hasNext() ) {
+			var val = $it0.next();
+			var $it1 = val.generalise(statement).iterator();
+			while( $it1.hasNext() ) {
+				var generalised = $it1.next();
+				vs.Main.getIO().debugln("Adding generalised statements: " + Std.string(generalised));
+				newS.add(generalised);
+			}
+		}
+		this.S = newS;
+		this.sanitizeVersionSpace();
+	}
+	,contains: function(stm) {
+		var $it0 = this.S.iterator();
+		while( $it0.hasNext() ) {
+			var s = $it0.next();
+			if(s.contains(stm)) return vs.core.ContainmentStatus.YES;
+		}
+		var canContain = false;
+		var $it1 = this.G.iterator();
+		while( $it1.hasNext() ) {
+			var s = $it1.next();
+			if(s.contains(stm)) {
+				canContain = true;
+				break;
+			}
+		}
+		if(!canContain) return vs.core.ContainmentStatus.NO;
+		return vs.core.ContainmentStatus.MAYBE;
+	}
+	,S: null
+	,G: null
+	,__class__: vs.core.VersionSpace
+}
+if(!vs.io) vs.io = {}
+vs.io.IIO = $hxClasses["vs.io.IIO"] = function() { }
+vs.io.IIO.__name__ = ["vs","io","IIO"];
+vs.io.IIO.prototype = {
+	flush: null
+	,getSamples: null
+	,getStructure: null
+	,warnln: null
+	,warn: null
+	,errorln: null
+	,error: null
+	,debugln: null
+	,debug: null
+	,write: null
+	,writeln: null
+	,__class__: vs.io.IIO
+}
+vs.io.JavascriptIO = $hxClasses["vs.io.JavascriptIO"] = function() {
 	this.output_id = "output";
 	this.sb = new StringBuf();
 };
-vs.JavascriptIO.__name__ = true;
-vs.JavascriptIO.__interfaces__ = [vs.IIO];
-vs.JavascriptIO.prototype = {
-	getSamples: function() {
+vs.io.JavascriptIO.__name__ = ["vs","io","JavascriptIO"];
+vs.io.JavascriptIO.__interfaces__ = [vs.io.IIO];
+vs.io.JavascriptIO.prototype = {
+	getQuestions: function() {
+		return js.Lib.document.getElementById("questions").value;
+	}
+	,getSamples: function() {
 		return js.Lib.document.getElementById("sample").value;
 	}
 	,getStructure: function() {
@@ -1048,349 +1668,131 @@ vs.JavascriptIO.prototype = {
 		this.sb.b += Std.string(m);
 		this.sb.b += Std.string("<br />");
 	}
-	,__class__: vs.JavascriptIO
+	,sb: null
+	,output_id: null
+	,__class__: vs.io.JavascriptIO
 }
-vs.Main = function() {
+if(!vs.parse) vs.parse = {}
+vs.parse.DotConceptParser = $hxClasses["vs.parse.DotConceptParser"] = function() {
 };
-vs.Main.__name__ = true;
-vs.Main.getIO = function() {
-	return vs.Main._IO;
-}
-vs.Main.dummyStructure = function() {
-	vs.Main.getIO().writeln("Initializing");
-	var empty = new vs.Concept("empty");
-	var blue = new vs.Concept("blue");
-	var green = new vs.Concept("green");
-	var red = new vs.Concept("red");
-	var orange = new vs.Concept("orange");
-	var purple = new vs.Concept("purple");
-	var mono = new vs.Concept("mono");
-	var poly = new vs.Concept("poly");
-	var all = new vs.Concept("all");
-	vs.Main.getIO().writeln("Created concepts. Inserting hierarchy...");
-	empty.addParents([blue,green,red,orange,purple]);
-	mono.addChildren([blue,green,red]);
-	poly.addChildren([orange,purple]);
-	all.addChildren([mono,poly]);
-	vs.Main.getIO().writeln("Hierarchy created. Creating version space...");
-	var vs1 = new vs.VersionSpace(all,empty);
-	vs.Main.getIO().writeln("Starting...");
-	vs1.print();
-	vs.Main.getIO().writeln("Adding red...");
-	vs1.add(red);
-	vs1.print();
-	vs.Main.getIO().writeln("Substracting purple...");
-	vs1.substract(purple);
-	vs1.print();
-	vs.Main.getIO().writeln("Adding blue...");
-	vs1.add(blue);
-	vs1.print();
-}
-vs.Main.dummyStructure2 = function() {
-	var emptyTijd = new vs.Concept("emptyTijd");
-	var voormiddag = new vs.Concept("voormiddag");
-	var namiddag = new vs.Concept("namiddag");
-	var avond = new vs.Concept("avond");
-	var nacht = new vs.Concept("nacht");
-	var empty = new vs.Concept("empty");
-	var blue = new vs.Concept("blue");
-	var green = new vs.Concept("green");
-	var red = new vs.Concept("red");
-	var orange = new vs.Concept("orange");
-	var purple = new vs.Concept("purple");
-	var mono = new vs.Concept("mono");
-	var poly = new vs.Concept("poly");
-	var all = new vs.Concept("all");
-}
-vs.Main.start_cpp = function() {
-}
-vs.Main.start_js = function() {
-	vs.Main._IO = new vs.JavascriptIO();
-	vs.Processor.moo();
-	vs.ExtendedConcept.moo();
-}
-vs.Main.start_java = function() {
-}
-vs.Main.main = function() {
-	vs.Main._IO = new vs.JavascriptIO();
-	vs.Processor.moo();
-	vs.ExtendedConcept.moo();
-}
-vs.Main.prototype = {
-	__class__: vs.Main
-}
-vs.Mode = { __ename__ : true, __constructs__ : ["REGULAR","EXTENDED"] }
-vs.Mode.REGULAR = ["REGULAR",0];
-vs.Mode.REGULAR.toString = $estr;
-vs.Mode.REGULAR.__enum__ = vs.Mode;
-vs.Mode.EXTENDED = ["EXTENDED",1];
-vs.Mode.EXTENDED.toString = $estr;
-vs.Mode.EXTENDED.__enum__ = vs.Mode;
-vs.Processor = function() {
-	try {
-		var time = haxe.Timer.stamp();
-		vs.Main.getIO().debugln("Reading input...");
-		this.structureInput = vs.Main.getIO().getStructure();
-		this.sampleInput = vs.Main.getIO().getSamples();
-		this._process();
-		time = haxe.Timer.stamp() - time;
-		time *= 1000;
-		var timeStr = Math.round(time) + "";
-		vs.Main.getIO().writeln("Computation took " + timeStr + "ms.");
-		vs.Main.getIO().flush();
-	} catch( msg ) {
-		if( js.Boot.__instanceof(msg,String) ) {
-			vs.Main.getIO().errorln(msg);
-			vs.Main.getIO().flush();
-		} else throw(msg);
-	}
-};
-vs.Processor.__name__ = true;
-vs.Processor.moo = function() {
-}
-vs.Processor.process = function() {
-	var Io = js.Boot.__cast(vs.Main.getIO() , vs.JavascriptIO);
-	Io.clear();
-	vs.Processor.instance = new vs.Processor();
-}
-vs.Processor.prototype = {
-	processExtendedConcepts: function() {
-		var extendedSamples = vs.DotConceptParser.processInputExtended(this.sampleInput,this.concepts);
-		vs.Main.getIO().debugln("Samples found.");
-		var firstSample = $iterator(extendedSamples)().next().concept;
-		var extremes = vs.ExtendedConcept.searchExtremes(firstSample);
-		vs.Main.getIO().debugln("Extremes found: " + Std.string(extremes));
-		var vs1 = new vs.VersionSpace(extremes.all,extremes.empty);
-		this.vs = vs1;
-		vs1.print();
-		var $it0 = $iterator(extendedSamples)();
-		while( $it0.hasNext() ) {
-			var sample = $it0.next();
-			switch( (sample.type)[1] ) {
-			case 1:
-				vs.Main.getIO().write("Substracting concept ");
-				vs.Main.getIO().write("<span class=\"concept\">");
-				vs.Main.getIO().write("" + Std.string(sample.concept));
-				vs.Main.getIO().writeln("</span>");
-				vs1.substract(sample.concept);
-				vs1.print();
-				break;
-			case 0:
-				vs.Main.getIO().writeln("Adding concept " + Std.string(sample.concept));
-				vs1.add(sample.concept);
-				vs1.print();
-				break;
+vs.parse.DotConceptParser.__name__ = ["vs","parse","DotConceptParser"];
+vs.parse.DotConceptParser.processConcepts = function(string) {
+	var lines = string.split("\n");
+	vs.Main.getIO().debugln("Lines: " + Std.string(lines));
+	var concepts = new Hash();
+	var i = 0;
+	var _g = 0;
+	while(_g < lines.length) {
+		var line = lines[_g];
+		++_g;
+		i++;
+		vs.Main.getIO().debugln("Processing line: " + line);
+		var connection = line.split("->");
+		if(connection.length != 2) {
+			if(!vs.core.Helper.isEmptyLine(line)) vs.Main.getIO().warnln("Ignoring line " + i + " (" + line + ")");
+			continue;
+		}
+		var childKey = StringTools.trim(connection[0]);
+		var child, parent;
+		if(concepts.exists(childKey)) child = concepts.get(childKey); else {
+			child = new vs.core.Concept(childKey);
+			concepts.set(child.name,child);
+		}
+		var parentKeys = connection[1].split(",");
+		var _g1 = 0;
+		while(_g1 < parentKeys.length) {
+			var val = parentKeys[_g1];
+			++_g1;
+			var parentKey = StringTools.trim(val);
+			if(concepts.exists(parentKey)) parent = concepts.get(parentKey); else {
+				parent = new vs.core.Concept(parentKey);
+				concepts.set(parent.name,parent);
 			}
+			parent.addChild(child);
 		}
 	}
-	,processConcepts: function() {
-		var firstConcept = this.concepts.get(this.concepts.keys().next());
-		var extremes = vs.Concept.searchExtremes(firstConcept);
-		vs.Main.getIO().debugln("Extremes found: " + Std.string(extremes));
-		var vs1 = new vs.VersionSpace(extremes.all,extremes.empty);
-		vs1.print();
-		var $it0 = $iterator(vs.DotConceptParser.processInputRegular(this.sampleInput,this.concepts))();
-		while( $it0.hasNext() ) {
-			var sample = $it0.next();
-			switch( (sample.type)[1] ) {
-			case 1:
-				vs.Main.getIO().writeln("Substracting concept " + Std.string(sample.concept));
-				vs1.substract(sample.concept);
-				vs1.print();
-				break;
-			case 0:
-				vs.Main.getIO().writeln("Adding concept " + Std.string(sample.concept));
-				vs1.add(sample.concept);
-				vs1.print();
-				break;
-			}
-		}
-	}
-	,_process: function() {
-		vs.Main.getIO().debugln("   Structure input: " + this.structureInput);
-		vs.Main.getIO().debugln("   Sample input: " + this.sampleInput);
-		vs.Main.getIO().debugln("Processing input...");
-		this.concepts = vs.DotConceptParser.processConcepts(this.structureInput);
-		vs.Main.getIO().debugln("Concepts found: " + Std.string(this.concepts));
-		var mode = vs.DotConceptParser.determineMode(this.sampleInput);
-		switch( (mode)[1] ) {
-		case 1:
-			vs.Main.getIO().writeln("Extended mode detected.");
-			this.processExtendedConcepts();
-			break;
-		case 0:
-			vs.Main.getIO().writeln("Regular mode detected.");
-			this.processConcepts();
-			break;
-		}
-	}
-	,__class__: vs.Processor
+	return concepts;
 }
-vs.Type = { __ename__ : true, __constructs__ : ["PositiveSample","NegativeSample"] }
-vs.Type.PositiveSample = ["PositiveSample",0];
-vs.Type.PositiveSample.toString = $estr;
-vs.Type.PositiveSample.__enum__ = vs.Type;
-vs.Type.NegativeSample = ["NegativeSample",1];
-vs.Type.NegativeSample.toString = $estr;
-vs.Type.NegativeSample.__enum__ = vs.Type;
-vs.StatementHelper = function() { }
-vs.StatementHelper.__name__ = true;
-vs.StatementHelper.sanitiseGeneralisations = function(generalisedStatements) {
-	var newList = new List();
-	var $it0 = generalisedStatements.iterator();
-	while( $it0.hasNext() ) {
-		var stm = $it0.next();
-		var add = true;
-		var $it1 = generalisedStatements.iterator();
-		while( $it1.hasNext() ) {
-			var stm2 = $it1.next();
-			if(stm == stm2) continue;
-			if(stm.contains(stm2)) {
-				add = false;
-				break;
-			}
-		}
-		if(add) newList.add(stm);
-	}
-	return newList;
+vs.parse.DotConceptParser.determineMode = function(samples) {
+	if(vs.core.Helper.containsChar(samples,"[")) return vs.core.Mode.EXTENDED; else return vs.core.Mode.REGULAR;
 }
-vs.StatementHelper.sanitiseSpecialisations = function(specialisedStatements) {
-	var newList = new List();
-	var $it0 = specialisedStatements.iterator();
-	while( $it0.hasNext() ) {
-		var stm = $it0.next();
-		var add = true;
-		var $it1 = specialisedStatements.iterator();
-		while( $it1.hasNext() ) {
-			var stm2 = $it1.next();
-			if(stm == stm2) continue;
-			if(stm2.contains(stm)) {
-				add = false;
-				break;
-			}
-		}
-		if(add) newList.add(stm);
+vs.parse.DotConceptParser.processInput = function(string,f) {
+	var lines = string.split("\n");
+	var examples = new List();
+	var i = 0;
+	var _g = 0;
+	while(_g < lines.length) {
+		var line = lines[_g];
+		++_g;
+		i++;
+		line = StringTools.trim(line);
+		var type = HxOverrides.substr(line,0,1);
+		var statementString = StringTools.trim(HxOverrides.substr(line,1,null));
+		if(type == "-") {
+			var tmp = { type : vs.core.Type.NegativeSample, concept : f(statementString)};
+			examples.add(tmp);
+		} else if(type == "+") {
+			var tmp = { type : vs.core.Type.PositiveSample, concept : f(statementString)};
+			examples.add(tmp);
+		} else if(!vs.core.Helper.isEmptyLine(line)) vs.Main.getIO().warnln("Ignoring sample " + i + " (" + line + ")");
 	}
-	return newList;
+	return examples;
 }
-vs.ContainmentStatus = { __ename__ : true, __constructs__ : ["Yes","No","Maybe"] }
-vs.ContainmentStatus.Yes = ["Yes",0];
-vs.ContainmentStatus.Yes.toString = $estr;
-vs.ContainmentStatus.Yes.__enum__ = vs.ContainmentStatus;
-vs.ContainmentStatus.No = ["No",1];
-vs.ContainmentStatus.No.toString = $estr;
-vs.ContainmentStatus.No.__enum__ = vs.ContainmentStatus;
-vs.ContainmentStatus.Maybe = ["Maybe",2];
-vs.ContainmentStatus.Maybe.toString = $estr;
-vs.ContainmentStatus.Maybe.__enum__ = vs.ContainmentStatus;
-vs.VersionSpace = function(mostGeneral,mostSpecific) {
-	this.G = new List();
-	this.G.add(mostGeneral);
-	this.S = new List();
-	this.S.add(mostSpecific);
-};
-vs.VersionSpace.__name__ = true;
-vs.VersionSpace.searchExtremes = function(statements) {
-	var all = null;
-	var empty = null;
-	var $it0 = $iterator(statements)();
-	while( $it0.hasNext() ) {
-		var statement = $it0.next();
-		if(statement.isAll()) {
-			if(all != null) throw "Disconnected structure! Two heads.";
-			all = statement;
+vs.parse.DotConceptParser.processQuestions = function(string,f) {
+	var lines = string.split("\n");
+	var examples = new List();
+	var i = 0;
+	var _g = 0;
+	while(_g < lines.length) {
+		var line = lines[_g];
+		++_g;
+		i++;
+		if(vs.core.Helper.isEmptyLine(line)) {
+			vs.Main.getIO().warnln("Ignoring sample " + i + " (" + line + ")");
+			continue;
 		}
-		if(statement.isEmpty()) {
-			if(empty != null) throw "Disconnected structure! Two bottoms.";
-			empty = statement;
-		}
+		line = StringTools.trim(line);
+		examples.add(f(line));
 	}
-	if(all == null) throw "Invalid structure! No all.";
-	if(empty == null) throw "Invalid structure! No empty.";
-	return { all : all, empty : empty};
+	return examples;
 }
-vs.VersionSpace.prototype = {
-	print: function() {
-		vs.Main.getIO().writeln("The Version Space is now defined by:");
-		vs.Main.getIO().write("<div class=\"vs\">");
-		vs.Main.getIO().writeln("   G: " + Std.string(this.G));
-		vs.Main.getIO().writeln("   S: " + Std.string(this.S));
-		vs.Main.getIO().write("</div>");
-	}
-	,ms: function(hc) {
-		var rv = "{";
-		var iter = hc.keys();
-		while(iter.hasNext()) {
-			var next = iter.next();
-			rv += next;
-			if(iter.hasNext()) rv += ", ";
+vs.parse.DotConceptParser.decodeExtended = function(allConcepts) {
+	return function(extendedConceptString) {
+		if(extendedConceptString.charAt(0) == "[") extendedConceptString = HxOverrides.substr(extendedConceptString,1,extendedConceptString.length - 2);
+		var conceptKeys = extendedConceptString.split(".");
+		vs.Main.getIO().debugln("Processing extended concept " + Std.string(conceptKeys) + ".");
+		var concepts = new List();
+		var _g = 0;
+		while(_g < conceptKeys.length) {
+			var key = conceptKeys[_g];
+			++_g;
+			vs.Main.getIO().debugln("Looking up key " + key);
+			concepts.add(allConcepts.get(key));
 		}
-		return rv + "}";
-	}
-	,sanitizeVersionSpace: function() {
-		this.S = vs.StatementHelper.sanitiseGeneralisations(this.S);
-		var newG = new List();
-		var $it0 = this.G.iterator();
-		while( $it0.hasNext() ) {
-			var general = $it0.next();
-			var $it1 = this.S.iterator();
-			while( $it1.hasNext() ) {
-				var specific = $it1.next();
-				if(!general.contains(specific)) continue;
-				newG.add(general);
-			}
-		}
-		this.G = vs.StatementHelper.sanitiseSpecialisations(newG);
-	}
-	,substract: function(statement) {
-		var newG = new List();
-		var $it0 = this.G.iterator();
-		while( $it0.hasNext() ) {
-			var val = $it0.next();
-			var $it1 = val.specialise(statement).iterator();
-			while( $it1.hasNext() ) {
-				var specialised = $it1.next();
-				vs.Main.getIO().debugln("Adding specialised statements: " + Std.string(specialised));
-				newG.add(specialised);
-			}
-		}
-		this.G = newG;
-		this.sanitizeVersionSpace();
-	}
-	,add: function(statement) {
-		var newS = new List();
-		var $it0 = this.S.iterator();
-		while( $it0.hasNext() ) {
-			var val = $it0.next();
-			var $it1 = val.generalise(statement).iterator();
-			while( $it1.hasNext() ) {
-				var generalised = $it1.next();
-				vs.Main.getIO().debugln("Adding generalised statements: " + Std.string(generalised));
-				newS.add(generalised);
-			}
-		}
-		this.S = newS;
-		this.sanitizeVersionSpace();
-	}
-	,contains: function(stm) {
-		var $it0 = this.S.iterator();
-		while( $it0.hasNext() ) {
-			var s = $it0.next();
-			if(s.contains(stm)) return vs.ContainmentStatus.Yes;
-		}
-		var canContain = false;
-		var $it1 = this.G.iterator();
-		while( $it1.hasNext() ) {
-			var s = $it1.next();
-			if(s.contains(stm)) {
-				canContain = true;
-				break;
-			}
-		}
-		if(!canContain) return vs.ContainmentStatus.No;
-		return vs.ContainmentStatus.Maybe;
-	}
-	,__class__: vs.VersionSpace
+		var ec = new vs.core.ExtendedConcept(concepts);
+		vs.Main.getIO().debugln("Created extended concept " + Std.string(ec));
+		return ec;
+	};
+}
+vs.parse.DotConceptParser.decodeSimple = function(allConcepts) {
+	return function(conceptKey) {
+		return allConcepts.get(conceptKey);
+	};
+}
+vs.parse.DotConceptParser.processInputRegular = function(string,allConcepts) {
+	return vs.parse.DotConceptParser.processInput(string,vs.parse.DotConceptParser.decodeSimple(allConcepts));
+}
+vs.parse.DotConceptParser.processInputExtended = function(string,allConcepts) {
+	return vs.parse.DotConceptParser.processInput(string,vs.parse.DotConceptParser.decodeExtended(allConcepts));
+}
+vs.parse.DotConceptParser.processQuestionRegular = function(string,allConcepts) {
+	return vs.parse.DotConceptParser.processQuestions(string,vs.parse.DotConceptParser.decodeSimple(allConcepts));
+}
+vs.parse.DotConceptParser.processQuestionExtended = function(string,allConcepts) {
+	return vs.parse.DotConceptParser.processQuestions(string,vs.parse.DotConceptParser.decodeExtended(allConcepts));
+}
+vs.parse.DotConceptParser.prototype = {
+	__class__: vs.parse.DotConceptParser
 }
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
 var $_;
@@ -1405,27 +1807,28 @@ Math.__name__ = ["Math"];
 Math.NaN = Number.NaN;
 Math.NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
 Math.POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
+$hxClasses.Math = Math;
 Math.isFinite = function(i) {
 	return isFinite(i);
 };
 Math.isNaN = function(i) {
 	return isNaN(i);
 };
-String.prototype.__class__ = String;
-String.__name__ = true;
-Array.prototype.__class__ = Array;
-Array.__name__ = true;
-Date.prototype.__class__ = Date;
+String.prototype.__class__ = $hxClasses.String = String;
+String.__name__ = ["String"];
+Array.prototype.__class__ = $hxClasses.Array = Array;
+Array.__name__ = ["Array"];
+Date.prototype.__class__ = $hxClasses.Date = Date;
 Date.__name__ = ["Date"];
-var Int = { __name__ : ["Int"]};
-var Dynamic = { __name__ : ["Dynamic"]};
-var Float = Number;
+var Int = $hxClasses.Int = { __name__ : ["Int"]};
+var Dynamic = $hxClasses.Dynamic = { __name__ : ["Dynamic"]};
+var Float = $hxClasses.Float = Number;
 Float.__name__ = ["Float"];
-var Bool = Boolean;
+var Bool = $hxClasses.Bool = Boolean;
 Bool.__ename__ = ["Bool"];
-var Class = { __name__ : ["Class"]};
+var Class = $hxClasses.Class = { __name__ : ["Class"]};
 var Enum = { };
-var Void = { __ename__ : ["Void"]};
+var Void = $hxClasses.Void = { __ename__ : ["Void"]};
 if(typeof document != "undefined") js.Lib.document = document;
 if(typeof window != "undefined") {
 	js.Lib.window = window;
@@ -1435,6 +1838,10 @@ if(typeof window != "undefined") {
 		return f(msg,[url + ":" + line]);
 	};
 }
-vs.JavascriptIO.STRUCTURE_ID = "structure";
-vs.JavascriptIO.SAMPLE_ID = "sample";
+js.Lib.onerror = null;
+vs.io.JavascriptIO.STRUCTURE_ID = "structure";
+vs.io.JavascriptIO.SAMPLE_ID = "sample";
+vs.io.JavascriptIO.QUESTIONS_ID = "questions";
 vs.Main.main();
+
+//@ sourceMappingURL=bin\js\version-spaces.js.map

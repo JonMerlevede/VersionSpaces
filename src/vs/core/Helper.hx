@@ -1,11 +1,10 @@
-package vs;
+package vs.core;
 
 /**
  * Utility class that contains some helper functions not specific to any application domain.
  * 
  * @author Jonathan Merlevede
  */
-
 class Helper {
 	public static function hashToList<T> (hash : Hash<T>) : List<T> {
 		var list = new List<T>();

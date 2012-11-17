@@ -1,8 +1,15 @@
-package vs;
+package vs.core;
 
 /**
- * Class representing a concept.
- * 
+ * Class representing a version space concept.
+ * A version space concept is the simplest version kind of version space statement.
+ *
+ * Version space concepts are organised in trees.
+ * Each valid tree has a unique concept that contains all concepts in the tree.
+ * Each valid tree has a unique concept that is contained by all concepts in the tree.
+ *
+ * @see Statement
+ * @see ExtendedConcept
  * @author Jonathan Merlevede
  */
 class Concept implements Statement<Concept> {
@@ -94,7 +101,8 @@ class Concept implements Statement<Concept> {
 		Main.IO.debugln('Sanitised: ' + generalisations);
 		return generalisations;
 	}
-	
+
+
 	public function specialise(concept : Concept) : List<Concept> {
 		// BASE CASE
 		// If the given concept is not contained by this concept, return this concept
@@ -113,23 +121,14 @@ class Concept implements Statement<Concept> {
 		}
 		specialisations = StatementHelper.sanitiseSpecialisations(specialisations);
 		return specialisations;
-		// Remove specialized concepts from the array
-//		var toRemove = new List<String>();
-//		for (conceptKey in rv.keys()) {
-//			var concept = rv.get(conceptKey);
-//			for (concept2 in rv) {
-//				if (concept == concept2)
-//					continue;
-//				if (concept2.contains(concept)) {
-//					toRemove.add(conceptKey);
-////					rv.remove(conceptKey);
-//				}
-//			}
-//		}
-//		for (val in toRemove)
-//			rv.remove(val);
 	}
-	
+
+/**
+    * Returns whether this concept contains the given concepts.
+    *
+    * A concept contains itself.
+    * A concepts contains its children and all the concepts contained by its children.
+**/
 	public function contains(concept : Concept) : Bool {
 		// BASE CASE: a concept contains itself
 		if (concept == this)

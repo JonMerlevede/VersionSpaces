@@ -1,4 +1,4 @@
-package vs;
+package vs.io;
 
 /**
  * IO processor to be used with the Javascript target.
@@ -12,7 +12,8 @@ class JavascriptIO implements IIO
 	
 	private static inline var STRUCTURE_ID = 'structure';
 	private static inline var SAMPLE_ID = 'sample';
-	
+    private static inline var QUESTIONS_ID = 'questions';
+
 	public function new() {
 		output_id = "output";
 		sb = new StringBuf();
@@ -21,24 +22,28 @@ class JavascriptIO implements IIO
 	public function writeln(m : String) : Void {
 		sb.add(m);
 		sb.add("<br />");
-		//js.Lib.document.getElementById(output_id).innerHTML = sb.toString();
+        // Uncomment this line for debugging.
+//		js.Lib.document.getElementById(output_id).innerHTML = sb.toString();
 	}
 	
 	public function write(m : String) : Void {
 		sb.add(m);
-		//js.Lib.document.getElementById(output_id).innerHTML = sb.toString();
+        // Uncomment this line for debugging.
+//		js.Lib.document.getElementById(output_id).innerHTML = sb.toString();
 	}
 	
-	public function debug(m : String) : Void {
-		//write('<span class="debug">');
-		//write(m);
-		//write('</span>');
+	public inline function debug(m : String) : Void {
+        // Uncomment these lines for debugging.
+//		write('<span class="debug">');
+//		write(m);
+//		write('</span>');
 	}
 	
-	public function debugln(m : String) : Void {
-		//write('<span class="debug">');
-		//write(m);
-		//writeln('</span>');
+	public inline function debugln(m : String) : Void {
+        // Uncomment these lines for debugging.
+//		write('<span class="debug">');
+//		write(m);
+//		writeln('</span>');
 	}
 	
 	public function error(m ) {
@@ -74,4 +79,8 @@ class JavascriptIO implements IIO
 	public function getSamples() : String {
 		return untyped js.Lib.document.getElementById(SAMPLE_ID).value;
 	}
+
+    public function getQuestions() : String {
+        return untyped js.Lib.document.getElementById(QUESTIONS_ID).value;
+    }
 }
